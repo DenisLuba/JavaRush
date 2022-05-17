@@ -6,16 +6,16 @@ import java.math.RoundingMode;
 
 public class Solution {
     public static void main(String[] args) throws NumberFormatException {
-//        Number number = new Number(NumberSystemType._10, "6");
-//        Number result = convertNumberToOtherNumberSystem(number, NumberSystemType._2);
-//        System.out.println(result); //expected 110
-//
-//        number = new Number(NumberSystemType._16, "6df");
-//        result = convertNumberToOtherNumberSystem(number, NumberSystemType._8);
-//        System.out.println(result); //expected 3337
+        Number number = new Number(NumberSystemType._10, "6");
+        Number result = convertNumberToOtherNumberSystem(number, NumberSystemType._2);
+        System.out.println(result); //expected 110
 
-        Number number = new Number(NumberSystemType._16, "abcdefabcdef");
-        Number result = convertNumberToOtherNumberSystem(number, NumberSystemType._16);
+        number = new Number(NumberSystemType._16, "6df");
+        result = convertNumberToOtherNumberSystem(number, NumberSystemType._8);
+        System.out.println(result); //expected 3337
+
+        number = new Number(NumberSystemType._16, "abcdefabcdef");
+        result = convertNumberToOtherNumberSystem(number, NumberSystemType._16);
         System.out.println(result); //expected abcdefabcdef
     }
 
@@ -25,13 +25,14 @@ public class Solution {
         String digit = number.getDigit();
         int j = 0, i = digit.length() - 1;
         BigDecimal result = new BigDecimal("0");
+
         for (; i >= 0; i--, j++) {
             char ch = digit.charAt(i);
             int num = getInteger(ch, oldNumberSystem);
-            result = result.add(new BigDecimal((int) (Math.pow(oldNumberSystem, j) * num)));
+            BigDecimal powNum = new BigDecimal(oldNumberSystem);
+            powNum = powNum.pow(j).multiply(new BigDecimal(num));
+            result = result.add(powNum);
         }
-
-        System.out.println(result);
 
         StringBuilder sb = new StringBuilder();
         BigDecimal d1;
