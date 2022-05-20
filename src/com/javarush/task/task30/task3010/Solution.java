@@ -5,19 +5,26 @@ import java.util.regex.Pattern;
 
 public class Solution {
     public static void main(String... arguments) {
-        System.out.println(getBaseOfNumberSystem("10aAZz"));
+        String result = "incorrect";
+        try{
+            result = getBaseOfNumberSystem(arguments[0]);
+        } catch(Exception e) {}
+        System.out.println(result);
     }
 
-    private static int getBaseOfNumberSystem(String argument) {
-        if(Pattern.matches("^[\\w&&[^_]]*$", argument)) {
+    private static String getBaseOfNumberSystem(String argument) {
+        // regex включает все буквенно-цифровые символы (\w) и исключает нижнее подчеркивание ([^_])
+        // с начала (^) и до конца строки ($) подряд (*)
+        if(Pattern.matches("^[\\w&&[^_]]*$", argument)) { // Pattern.matches() возвращает true,
+            // если regex соответствует строке argument
             int max = 0;
-            for(char ch : argument.toLowerCase(Locale.ROOT).toCharArray()) {
-                max = ch > max ? ch : max;
+            for(char ch : argument.toLowerCase(Locale.ROOT).toCharArray()) { // пробежимся по всем символам в строке,
+                // уменьшив их, чтобы не обращать внимание на регистр
+                max = ch > max ? ch : max; // запишем в переменную max наибольшее значение символа
             }
-            System.out.println(max);
-            if(max > 47 && max < 58) return max < 50 ? 2 : max - 47;
-            return max - 86;
+            if(max > 47 && max < 58) return max < 50 ? "2" : String.valueOf(max - 47); // если символ относится к цифрам, то так...
+            return String.valueOf(max - 86); // а если к буквам, то так...
         }
-        return -1;
+        return "incorrect"; // в случае, когда символы в строке не соответствуют нашему regex, выдадим в ответе -1
     }
 }
