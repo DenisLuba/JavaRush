@@ -15,12 +15,12 @@ public class Solution {
 
     public static void main(String[] args) {
         Solution solution = new Solution();
-        String result1 = solution.binaryRepresentationMethod(6);
+        String result1 = solution.binaryRepresentationMethod(1345962766);
         System.out.println(result1);
 
         System.out.println();
         ForkJoinPool forkJoinPool = new ForkJoinPool();
-        String result2 = forkJoinPool.invoke(new BinaryRepresentationTask(6));
+        String result2 = forkJoinPool.invoke(new BinaryRepresentationTask(1345962766));
         System.out.println(result2);
     }
 }
