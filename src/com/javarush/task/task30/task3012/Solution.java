@@ -3,7 +3,7 @@ package com.javarush.task.task30.task3012;
 public class Solution {
     public static void main(String[] args) {
         Solution solution = new Solution();
-        solution.createExpression(1234);
+        solution.createExpression(74);
     }
     public void createExpression(int number) {
         System.out.print(number + " = ");
