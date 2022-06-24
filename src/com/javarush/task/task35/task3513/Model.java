@@ -42,34 +42,68 @@ public class Model {
         return tiles;
     }
 
-    private void compressTiles(Tile[] tiles) {
+    private boolean compressTiles(Tile[] tiles) {
+        boolean isChanged = false;
         int j = 0;
         for (int i = 0; i < tiles.length; i++) {
             if (!tiles[i].isEmpty()) {
                 if (i != j) {
                     tiles[j] = tiles[i];
                     tiles[i] = new Tile();
+                    isChanged = true;
                 }
                 j++;
             }
         }
+        return isChanged;
     }
 
-     private void mergeTiles(Tile[] tiles) {
+    private boolean mergeTiles(Tile[] tiles) {
+        boolean isCharged = false;
         for (int i = 0; i < tiles.length; i++) {
             if((i + 1) < tiles.length && tiles[i].value == tiles[i + 1].value && !tiles[i].isEmpty()) {
                 tiles[i].value *= 2;
                 tiles[i + 1].value = 0;
                 score += tiles[i].value;
                 maxTile = Math.max(maxTile, tiles[i].value);
+                isCharged = true;
                 compressTiles(tiles);
             }
         }
+        return isCharged;
     }
 
-    public static void main(String[] args) {
-        Tile[] tiles = new Tile[] {new Tile(), new Tile(8), new Tile(), new Tile(8)};
-        new Model().compressTiles(tiles);
-        for(Tile title : tiles) System.out.print(title.value + " ");
+//    public static void main(String[] args) {
+//        Model model = new Model();
+//        model.gameTiles[0] = new Tile[]{new Tile(), new Tile(8), new Tile(), new Tile(8)};
+//        model.gameTiles[1] = new Tile[]{new Tile(2), new Tile(8), new Tile(), new Tile()};
+//        model.gameTiles[2] = new Tile[]{new Tile(), new Tile(), new Tile(16), new Tile(8)};
+//        model.gameTiles[3] = new Tile[]{new Tile(4), new Tile(4), new Tile(4), new Tile(4)};
+//        System.out.println(model);
+//        System.out.println("*****************************************");
+//
+//        model.left();
+//        System.out.println(model);
+//    }
+
+    void left() {
+        boolean check = false;
+        for (Tile[] gameTile : gameTiles) {
+            compressTiles(gameTile);
+            boolean wasMergeTiles = mergeTiles(gameTile);
+            if (wasMergeTiles) check = true;
+        }
+        if (check) addTile();
     }
+
+//    @Override
+//    public String toString() {
+//        StringBuilder builder = new StringBuilder();
+//        for (Tile[] tiles : gameTiles) {
+//            for (Tile tile : tiles)
+//                builder.append(tile.value).append(" ");
+//            builder.append('\n');
+//        }
+//        return builder.toString().trim();
+//    }
 }
