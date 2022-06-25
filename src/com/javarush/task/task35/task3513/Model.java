@@ -10,6 +10,7 @@ public class Model {
 
     static final int FIELD_WIDTH = 4;
     private final Tile[][] gameTiles = new Tile[FIELD_WIDTH][FIELD_WIDTH];
+    private int[][] flippedGameField = new int[FIELD_WIDTH][FIELD_WIDTH];
 
     public Model() {
         resetGameTiles();
@@ -76,24 +77,45 @@ public class Model {
 //    public static void main(String[] args) {
 //        Model model = new Model();
 //        model.gameTiles[0] = new Tile[]{new Tile(), new Tile(8), new Tile(), new Tile(8)};
-//        model.gameTiles[1] = new Tile[]{new Tile(2), new Tile(8), new Tile(), new Tile()};
+//        model.gameTiles[1] = new Tile[]{new Tile(2), new Tile(0), new Tile(8), new Tile()};
 //        model.gameTiles[2] = new Tile[]{new Tile(), new Tile(), new Tile(16), new Tile(8)};
 //        model.gameTiles[3] = new Tile[]{new Tile(4), new Tile(4), new Tile(4), new Tile(4)};
 //        System.out.println(model);
 //        System.out.println("*****************************************");
 //
-//        model.left();
+//        model.down();
 //        System.out.println(model);
 //    }
 
     void left() {
         boolean check = false;
         for (Tile[] gameTile : gameTiles) {
-            compressTiles(gameTile);
+            boolean wasCompressTiles = compressTiles(gameTile);
             boolean wasMergeTiles = mergeTiles(gameTile);
-            if (wasMergeTiles) check = true;
+            if (wasMergeTiles || wasCompressTiles) check = true;
         }
         if (check) addTile();
+    }
+
+    void right() {
+        flipField(); flipField(); left(); flipField(); flipField();
+    }
+
+    void down() {
+        flipField(); left(); flipField(); flipField(); flipField();
+    }
+
+    void up() {
+        flipField(); flipField(); flipField(); left(); flipField();
+    }
+
+    private void flipField() {
+        for (int i = 0; i < FIELD_WIDTH; i++)
+            for (int j = 0; j < FIELD_WIDTH; j++)
+                flippedGameField[j][(FIELD_WIDTH - 1) - i] = gameTiles[i][j].value;
+        for (int i = 0; i < FIELD_WIDTH; i++)
+            for (int j = 0; j < FIELD_WIDTH; j++)
+                gameTiles[i][j].value = flippedGameField[i][j];
     }
 
 //    @Override
