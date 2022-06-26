@@ -31,10 +31,30 @@ public class Controller extends KeyAdapter {
     @Override
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        switch (keyCode) {
-            // 27 - ESCAPE
-            case 27 :
+        if (keyCode == 27) resetGame(); // 27 - ESCAPE
+        if (!model.canMove()) view.isGameLost = true;
 
+        if (!view.isGameLost && !view.isGameWon) {
+            switch (keyCode) {
+//              37 - VK_LEFT
+                case 37 :
+                    model.left();
+                    break;
+//              39 - VK_RIGHT
+                case 39 :
+                    model.right();
+                    break;
+//              38 - UP
+                case 38 :
+                    model.up();
+                    break;
+//              40 - DOWN
+                case 40 :
+                    model.down();
+                    break;
+            }
         }
+        if (model.maxTile == WINNING_TILE) view.isGameWon = true;
+        view.repaint();
     }
 }
