@@ -6,11 +6,16 @@ import java.awt.event.KeyEvent;
 public class Controller extends KeyAdapter {
     private static final int WINNING_TILE = 2048;
     private Model model;
+
     private View view;
 
     public Controller(Model model) {
         this.model = model;
         view = new View(this);
+    }
+
+    public View getView() {
+        return view;
     }
 
     public Tile[][] getGameTiles() {
