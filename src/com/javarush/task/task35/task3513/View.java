@@ -5,9 +5,9 @@ import java.awt.*;
 
 public class View extends JPanel {
     private static final Color BG_COLOR = new Color(0xbbada0);
-    public static final String FONT_NAME = "Arial";
-    public static final int TILE_SIZE = 96;
-    public static final int TILE_MARGIN = 12;
+    private static final String FONT_NAME = "Arial";
+    private static final int TILE_SIZE = 96;
+    private static final int TILE_MARGIN = 12;
 
     private Controller controller;
 
@@ -55,6 +55,7 @@ public class View extends JPanel {
 
         String s = String.valueOf(value);
         final FontMetrics fm = getFontMetrics(font);
+
         final int w = fm.stringWidth(s);
         final int h = -(int) fm.getLineMetrics(s, g).getBaselineOffsets()[2];
 

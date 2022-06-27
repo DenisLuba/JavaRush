@@ -2,6 +2,7 @@ package com.javarush.task.task35.task3513;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class Model {
     int score = 0;
@@ -10,8 +11,13 @@ public class Model {
 
     static final int FIELD_WIDTH = 4;
 
-    private final Tile[][] gameTiles = new Tile[FIELD_WIDTH][FIELD_WIDTH];
+    private boolean isSaveNeeded = true;
+
+    private Tile[][] gameTiles = new Tile[FIELD_WIDTH][FIELD_WIDTH];
     private int[][] flippedGameField = new int[FIELD_WIDTH][FIELD_WIDTH];
+
+    private Stack<Tile[][]> previousStates = new Stack();
+    private Stack<Integer> previousScores = new Stack();
 
     public Model() {
         resetGameTiles();
@@ -135,6 +141,23 @@ public class Model {
                 if (j < FIELD_WIDTH - 1 && gameTiles[i][j].value == gameTiles[i][j + 1].value) return  true;
             }
         return false;
+    }
+
+    private void saveState(Tile[][] tiles) {
+        Tile[][] saveTiles = new Tile[FIELD_WIDTH][FIELD_WIDTH];
+        for (int i = 0; i < FIELD_WIDTH; i++)
+            for (int j = 0; j < FIELD_WIDTH; j++)
+                saveTiles[i][j] = new Tile(tiles[i][j].value);
+        previousStates.push(saveTiles);
+        previousScores.push(score);
+        isSaveNeeded = false;
+    }
+
+    public void rollback() {
+        if (!previousStates.empty() && !previousScores.empty()) {
+            gameTiles = previousStates.pop();
+            score = previousScores.pop();
+        }
     }
 
 //    @Override
