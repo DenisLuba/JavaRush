@@ -101,6 +101,7 @@ public class Model {
 //    }
 
     void left() {
+        if (isSaveNeeded) saveState(gameTiles);
         boolean check = false;
         for (Tile[] gameTile : gameTiles) {
             boolean wasCompressTiles = compressTiles(gameTile);
@@ -108,17 +109,21 @@ public class Model {
             if (wasMergeTiles || wasCompressTiles) check = true;
         }
         if (check) addTile();
+        isSaveNeeded = true;
     }
 
     void right() {
+        saveState(gameTiles);
         flipField(); flipField(); left(); flipField(); flipField();
     }
 
     void down() {
+        saveState(gameTiles);
         flipField(); left(); flipField(); flipField(); flipField();
     }
 
     void up() {
+        saveState(gameTiles);
         flipField(); flipField(); flipField(); left(); flipField();
     }
 
@@ -157,6 +162,23 @@ public class Model {
         if (!previousStates.empty() && !previousScores.empty()) {
             gameTiles = previousStates.pop();
             score = previousScores.pop();
+        }
+    }
+
+    void randomMove() {
+        int n = ((int) (Math.random() * 100)) % 4;
+        switch (n) {
+            case 0 :
+                left();
+                break;
+            case 1 :
+                right();
+                break;
+            case 2 :
+                up();
+                break;
+            case 3 :
+                down();
         }
     }
 

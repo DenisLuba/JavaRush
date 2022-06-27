@@ -57,6 +57,12 @@ public class Controller extends KeyAdapter {
                 case 40 :
                     model.down();
                     break;
+//              90 - VK_Z
+                case 90 :
+                    model.rollback();
+                    break;
+                case 82 :
+                    model.randomMove();
             }
         }
         if (model.maxTile == WINNING_TILE) view.isGameWon = true;
