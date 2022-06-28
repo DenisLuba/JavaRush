@@ -85,21 +85,6 @@ public class Model {
         return isCharged;
     }
 
-//    public static void main(String[] args) {
-//        Model model = new Model();
-//        model.gameTiles[0] = new Tile[]{new Tile(4), new Tile(8), new Tile(4), new Tile(8)};
-//        model.gameTiles[1] = new Tile[]{new Tile(2), new Tile(4), new Tile(8), new Tile(4)};
-//        model.gameTiles[2] = new Tile[]{new Tile(8), new Tile(5), new Tile(5), new Tile(8)};
-//        model.gameTiles[3] = new Tile[]{new Tile(4), new Tile(2), new Tile(3), new Tile(4)};
-//        System.out.println(model);
-//        System.out.println("*****************************************");
-//
-//
-//        System.out.println(model.canMove());
-//        model.down();
-//        System.out.println(model);
-//    }
-
     void left() {
         if (isSaveNeeded) saveState(gameTiles);
         boolean check = false;
@@ -182,14 +167,27 @@ public class Model {
         }
     }
 
-//    @Override
-//    public String toString() {
-//        StringBuilder builder = new StringBuilder();
-//        for (Tile[] tiles : gameTiles) {
-//            for (Tile tile : tiles)
-//                builder.append(tile.value).append(" ");
-//            builder.append('\n');
-//        }
-//        return builder.toString().trim();
-//    }
+    boolean hasBoardChanged() {
+        Tile[][] previousGameTiles = previousStates.peek();
+        for (int i = 0; i < FIELD_WIDTH; i++)
+            for (int j = 0; j < FIELD_WIDTH; j++)
+                if (previousGameTiles[i][j].value != gameTiles[i][j].value)
+                    return true;
+        return false;
+    }
+
+    MoveEfficiency getMoveEfficiency(Move move) {
+        MoveEfficiency moveEfficiency;
+        move.move();
+        if (hasBoardChanged()) {
+            int numberOfEmptyTiles = 0;
+            for (Tile[] tiles : gameTiles)
+                for (Tile tile : tiles)
+                    if (tile.isEmpty())
+                        numberOfEmptyTiles ++;
+            moveEfficiency = new MoveEfficiency(numberOfEmptyTiles, score, move);
+        } else moveEfficiency = new MoveEfficiency(-1, 0, move);
+        rollback();
+        return moveEfficiency;
+    }
 }
