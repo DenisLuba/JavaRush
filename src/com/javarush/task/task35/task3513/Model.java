@@ -1,8 +1,6 @@
 package com.javarush.task.task35.task3513;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class Model {
     int score = 0;
@@ -189,5 +187,24 @@ public class Model {
         } else moveEfficiency = new MoveEfficiency(-1, 0, move);
         rollback();
         return moveEfficiency;
+    }
+
+    void autoMove() {
+        PriorityQueue<MoveEfficiency> queue = new PriorityQueue<>(4, Collections.reverseOrder());
+
+//        1 способ - через внутренний анонимный класс
+        queue.add(getMoveEfficiency(new Move() {
+            @Override
+            public void move() {
+                left();
+            }
+        }));
+//        2 способ - через lambda
+        queue.add(getMoveEfficiency(() -> right()));
+//        3 способ - через reference method (ссылочный метод)
+        queue.add(getMoveEfficiency(this::up));
+        queue.add(getMoveEfficiency(this::down));
+        assert queue.peek() != null;
+        queue.peek().getMove().move();
     }
 }
