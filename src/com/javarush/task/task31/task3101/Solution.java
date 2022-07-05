@@ -4,50 +4,54 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Solution {
     public static void main(String[] args) throws IOException {
         String path = args[0];
-        File filePath = new File(path);
-
         String resultFileAbsolutePath = args[1];
-        File source = new File(resultFileAbsolutePath);
+        try {
+            File resultFile = new File(resultFileAbsolutePath);
+            File dest = new File(resultFile.getParent() + "/allFilesContent.txt");
 
-        String pathDestinationFile = source.getParent() + "allFilesContent.txt";
-        File destination = new File(pathDestinationFile);
+            if (FileUtils.isExist(dest)) FileUtils.deleteFile(dest);
 
-        if (!FileUtils.isExist(destination)) {
-            FileUtils.renameFile(source, destination);
-            source = destination;
-        }
+            FileUtils.renameFile(resultFile, dest);
 
-        StringBuilder builder = new StringBuilder();
-        String result = intoFiles(filePath, builder);
-
-        try (FileOutputStream fileOutputStream = new FileOutputStream(source, true)) {
-            fileOutputStream.write(result.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {}
-    }
-
-    static String intoFiles(File path, StringBuilder builder) {
-
-        for (File file : path.listFiles()) {
-            if (file.isDirectory()) intoFiles(file, builder);
-            else if (file.length() <= 50) {
-                try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                    int i;
-                    while ((i = fileInputStream.read()) != -1) {
-                        builder.append((char) i);
-                    }
-                    builder.append('\n');
-                } catch (IOException e) {
+            Map<String, byte[]> fileTree = getFileTree(path);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(dest)) {
+                for (byte[] bytes : fileTree.values()) {
+                    fileOutputStream.write(bytes);
+                    fileOutputStream.write("\n".getBytes());
                 }
             }
+        }catch (IOException ignored) {}
+    }
+
+    public static Map<String, byte[]> getFileTree(String root) throws IOException {
+        Map<String, byte[]> result = new TreeMap<>();
+
+        EnumSet<FileVisitOption> options = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+        Files.walkFileTree(Paths.get(root), options, 20, new GetFiles(result));
+        return result;
+    }
+
+    private static class GetFiles extends  SimpleFileVisitor<Path> {
+        private Map<String, byte[]> result;
+
+        public GetFiles(Map<String, byte[]> result) {
+            this.result = result;
         }
-        return builder.toString().trim();
+
+        @Override
+        public FileVisitResult visitFile(Path path, BasicFileAttributes basicFileAttributes) throws IOException {
+            File file = path.toFile();
+            if (file.isFile()) {
+                if (file.length() <= 50) {
+                    result.put(path.getFileName().toString(), Files.readAllBytes(path));
+                }
+            }
+            return super.visitFile(path, basicFileAttributes);
+        }
     }
 }
