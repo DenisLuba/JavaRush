@@ -1,4 +1,4 @@
- package com.javarush.task.task31.task3106;
+package com.javarush.task.task31.task3106;
 
 import java.io.*;
 import java.util.ArrayList;
