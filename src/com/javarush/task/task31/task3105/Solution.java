@@ -38,6 +38,7 @@ public class Solution {
 
     }
 
+    // рабочий метод
     public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
         byte[] buffer = new byte[1024 * 1024];
         int bufferSize;
@@ -51,18 +52,20 @@ public class Solution {
 
     }
 
+    // рабочий метод
     public static void decompress (Path archive, Path destination) throws IOException {
         try (ZipInputStream input = new ZipInputStream(new BufferedInputStream(new FileInputStream(archive.toFile())), Charset.forName("windows-1251"))) {
             ZipEntry entry;
-            while ((entry = input.getNextEntry()) != null) {
-                Path filePath = destination.resolve(entry.getName());
+            while ((entry = input.getNextEntry()) != null) { // начинаем цикл, в котором будем получать новые энтри, пока они не закончатся.
+                Path filePath = destination.resolve(entry.getName()); // объединяем путь до папки назначения и относительный путь энтри.
 
-                if (entry.isDirectory() && !Files.exists(filePath))
-                    Files.createDirectories(filePath);
-                else if (!entry.isDirectory() && !Files.exists(filePath)) {
-                    if (!Files.exists(filePath.getParent()))
-                        Files.createDirectory(filePath.getParent());
-                    Files.createFile(filePath);
+                if (entry.isDirectory() && !Files.exists(filePath)) // если энтри - это папка и она пока не создана,
+                    Files.createDirectories(filePath); // то создаем;
+                else if (!entry.isDirectory() && !Files.exists(filePath)) { // если энтри - это файл и она пока не создана, то
+                    if (!Files.exists(filePath.getParent())) // (если родительской директории для файла нет,
+                        Files.createDirectory(filePath.getParent()); // то создаем ее)
+                    Files.createFile(filePath); // создаем файл, и
+                    // копируем данные в этот файл из архива.
                     try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
                         copy(input, output);
                     }
@@ -70,6 +73,4 @@ public class Solution {
             }
         }
     }
-
-
 }
