@@ -50,7 +50,7 @@ public class Solution {
             Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-
+                    ZipEntry entry;
                     return FileVisitResult.CONTINUE;
                 }
 
