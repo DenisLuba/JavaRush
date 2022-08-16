@@ -3,17 +3,14 @@ package com.javarush.task.task31.task3105;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class Solution {
     public static void main(String[] args) throws IOException {
-        Path destination = Paths.get("D:\\eng");
+        Path destination = Paths.get("D:\\Temp");
         Path archive = Paths.get("D:\\ENGLISH.zip");
         decompress(archive, destination);
 
@@ -49,7 +46,21 @@ public class Solution {
     }
 
     public static void compress (Path source, Path archive) throws IOException {
+        try (ZipOutputStream output = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(archive.toFile())))) {
+            Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+
+                   return FileVisitResult.CONTINUE;
+                }
+            });
+        }
     }
 
     // рабочий метод
