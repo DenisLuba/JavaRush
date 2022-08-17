@@ -10,31 +10,30 @@ import java.util.zip.ZipOutputStream;
 
 public class Solution {
     public static void main(String[] args) throws IOException {
-        Path destination = Paths.get("D:\\Temp\\Folder11");
-        Path archive = Paths.get("D:\\Temp\\Folder.zip");
-        decompress(archive, destination);
+//        Path destination = Paths.get("D:\\Temp\\Folder11");
+//        Path archive = Paths.get("D:\\Temp\\Folder.zip");
+//        decompress(archive, destination);
+
+        Path file = Paths.get("D:\\Temp\\5.txt");
+        Path directory = Paths.get("D:\\Temp\\Folder");
+        addFile(file, directory);
     }
 
     // рабочий метод
-    public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+    private static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
         byte[] buffer = new byte[1024 * 1024];
         int bufferSize;
-
-        while ((bufferSize = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, bufferSize);
-        }
+        while ((bufferSize = inputStream.read(buffer)) != -1) outputStream.write(buffer, 0, bufferSize);
     }
 
     // рабочий метод
-    public static void compress (Path source, Path archive) throws IOException {
-
+    private static void compress (Path source, Path archive) throws IOException {
         try (ZipOutputStream output = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(archive.toFile())))) {
             Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file.toFile()))) {
-                        Path result = source.relativize(file);
-                        output.putNextEntry(new ZipEntry(result.toString()));
+                        output.putNextEntry(new ZipEntry(source.relativize(file).toString())); // кладем в ZipOutputStream новую ZipEntry с
                         copy(input, output);
                     }
                     return FileVisitResult.CONTINUE;
@@ -44,7 +43,7 @@ public class Solution {
     }
 
     // рабочий метод
-    public static void decompress (Path archive, Path destination) throws IOException {
+    private static void decompress (Path archive, Path destination) throws IOException {
         try (ZipInputStream input = new ZipInputStream(new BufferedInputStream(new FileInputStream(archive.toFile())), Charset.forName("windows-1251"))) {
             ZipEntry entry;
             while ((entry = input.getNextEntry()) != null) { // начинаем цикл, в котором будем получать новые энтри, пока они не закончатся.
@@ -63,5 +62,25 @@ public class Solution {
                 }
             }
         }
+    }
+
+    // рабочий метод
+    private static void addFile(Path newFile, Path directory) throws IOException {
+        final Path[] newPath = {directory.resolve(Paths.get("new")).resolve(newFile.getFileName())};
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                if (file.getFileName().equals(newFile.getFileName())) {
+                    newPath[0] = file;
+                    Files.delete(file);
+                    return FileVisitResult.TERMINATE;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        if(!Files.exists(newPath[0].getParent())) {
+            Files.createDirectory(newPath[0].getParent());
+        }
+        Files.move(newFile, newPath[0]);
     }
 }
