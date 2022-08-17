@@ -10,29 +10,9 @@ import java.util.zip.ZipOutputStream;
 
 public class Solution {
     public static void main(String[] args) throws IOException {
-        Path destination = Paths.get("D:\\Temp");
-        Path archive = Paths.get("D:\\ENGLISH.zip");
+        Path destination = Paths.get("D:\\Temp\\Folder11");
+        Path archive = Paths.get("D:\\Temp\\Folder.zip");
         decompress(archive, destination);
-
-//        Path sourceFolder = Paths.get(source.replace(".zip", ""));
-//        String destination = "";
-//        ZipFile archive = new ZipFile(source);
-//
-//
-//        Enumeration<? extends ZipEntry> entries = archive.entries();
-//        while (entries.hasMoreElements()) {
-//            ZipEntry entry = entries.nextElement();
-//            Path tempFile;
-//            Path file = Paths.get(sourceFolder + "\\" + entry.getName());
-//            if (!Files.exists(file)) tempFile = entry.isDirectory() ? Files.createDirectory(file) : Files.createFile(file);
-//            else tempFile = file;
-//            if (entry.isDirectory()) continue;
-//
-//            ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(tempFile.toFile()));
-//            zipOutputStream.putNextEntry(entry);
-//            copy(archive.getInputStream(entry), zipOutputStream);
-//        }
-
     }
 
     // рабочий метод
@@ -45,19 +25,19 @@ public class Solution {
         }
     }
 
+    // рабочий метод
     public static void compress (Path source, Path archive) throws IOException {
+
         try (ZipOutputStream output = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(archive.toFile())))) {
             Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    ZipEntry entry;
+                    try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file.toFile()))) {
+                        Path result = source.relativize(file);
+                        output.putNextEntry(new ZipEntry(result.toString()));
+                        copy(input, output);
+                    }
                     return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-
-                   return FileVisitResult.CONTINUE;
                 }
             });
         }
