@@ -10,8 +10,8 @@ import java.util.zip.ZipOutputStream;
 
 public class Solution {
     public static void main(String[] args) throws IOException {
-        Path file = Paths.get("D:\\Temp\\7.txt");
-        Path zipFile = Paths.get("D:\\Temp\\Folder.zip");
+        Path file = Paths.get(args[0]);
+        Path zipFile = Paths.get(args[1]);
         addFileToZip(file, zipFile);
     }
 
