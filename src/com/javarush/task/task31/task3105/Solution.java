@@ -10,13 +10,32 @@ import java.util.zip.ZipOutputStream;
 
 public class Solution {
     public static void main(String[] args) throws IOException {
-//        Path destination = Paths.get("D:\\Temp\\Folder11");
-//        Path archive = Paths.get("D:\\Temp\\Folder.zip");
-//        decompress(archive, destination);
+        Path file = Paths.get("D:\\Temp\\7.txt");
+        Path zipFile = Paths.get("D:\\Temp\\Folder.zip");
+        addFileToZip(file, zipFile);
+    }
 
-        Path file = Paths.get("D:\\Temp\\5.txt");
-        Path directory = Paths.get("D:\\Temp\\Folder");
-        addFile(file, directory);
+    public static void addFileToZip(Path file, Path zipFile) throws IOException {
+        Path tempFile = zipFile.getParent().resolve("tempFile");
+        Files.createDirectory(tempFile);
+        decompress(zipFile, tempFile);
+        Files.delete(zipFile);
+        addFileToFolder(file, tempFile);
+        compress(tempFile, zipFile);
+        Files.walkFileTree(tempFile, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        Files.walkFileTree(tempFile, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     // рабочий метод
@@ -33,7 +52,7 @@ public class Solution {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file.toFile()))) {
-                        output.putNextEntry(new ZipEntry(source.relativize(file).toString())); // кладем в ZipOutputStream новую ZipEntry с
+                        output.putNextEntry(new ZipEntry(source.relativize(file).toString())); // кладем в ZipOutputStream новую ZipEntry
                         copy(input, output);
                     }
                     return FileVisitResult.CONTINUE;
@@ -65,7 +84,7 @@ public class Solution {
     }
 
     // рабочий метод
-    private static void addFile(Path newFile, Path directory) throws IOException {
+    private static void addFileToFolder(Path newFile, Path directory) throws IOException {
         final Path[] newPath = {directory.resolve(Paths.get("new")).resolve(newFile.getFileName())};
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
             @Override
@@ -78,9 +97,7 @@ public class Solution {
                 return FileVisitResult.CONTINUE;
             }
         });
-        if(!Files.exists(newPath[0].getParent())) {
-            Files.createDirectory(newPath[0].getParent());
-        }
+        if(!Files.exists(newPath[0].getParent())) Files.createDirectory(newPath[0].getParent());
         Files.move(newFile, newPath[0]);
     }
 }
