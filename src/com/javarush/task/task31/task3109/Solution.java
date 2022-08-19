@@ -3,6 +3,7 @@ package com.javarush.task.task31.task3109;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.Properties;
 
