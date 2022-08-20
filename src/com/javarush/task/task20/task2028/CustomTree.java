@@ -7,6 +7,22 @@ import java.util.List;
 
 public class CustomTree extends AbstractList<String> implements Cloneable, Serializable {
 
+    static class Entry<T> implements Serializable {
+        String elementName;
+        boolean availableToAddLeftChildren, availableToAddRightChildren;
+        Entry<T> parent, leftChild, rightChild;
+
+        public Entry(String elementName) {
+            this.elementName = elementName;
+            availableToAddLeftChildren = true;
+            availableToAddRightChildren = true;
+        }
+
+        public boolean isAvailableToAddChildren() {
+            return availableToAddLeftChildren || availableToAddRightChildren;
+        }
+    }
+
     @Override
     public String get(int index) {
         throw new UnsupportedOperationException();
