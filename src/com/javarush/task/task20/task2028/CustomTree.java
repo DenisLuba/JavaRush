@@ -19,6 +19,23 @@ public class CustomTree extends AbstractList<String> implements Cloneable, Seria
         public boolean isAvailableToAddChildren() {
             return availableToAddLeftChildren || availableToAddRightChildren;
         }
+
+        public boolean hasLeftChildren() { return !availableToAddLeftChildren; }
+
+        public boolean hasRightChildren() { return !availableToAddRightChildren; }
+
+        public boolean hasChildren() { return hasRightChildren() || hasLeftChildren(); }
+
+        public boolean removeEntry() {
+            parent = null;
+            leftChild = null;
+            rightChild = null;
+            elementName = null;
+            numberOfElement = 0;
+            availableToAddLeftChildren = false;
+            availableToAddRightChildren = false;
+            return true;
+        }
     }
 
     Entry<String> root;
@@ -33,17 +50,22 @@ public class CustomTree extends AbstractList<String> implements Cloneable, Seria
         Entry<String> entry = new Entry<>(s);
         entry.numberOfElement = size + 1;
         Queue<Entry> queue = new LinkedList<>();
-        if (size == 0) { // если дерево пустое,
+        if (false) { // если дерево пустое,
             root = entry; // кладем новый элемент в корень
             size++; // размер теперь равен 1
         } else {
             queue.add(root); // в начало очереди кладем первый элемент
-            Entry parentEntry;
-            Entry tempEntry = root;
-            while ((Objects.requireNonNull(parentEntry = queue.poll())).isAvailableToAddChildren()) { // забираем первый элемент из очереди
+            Entry parentEntry = root;
+            Entry tempEntry = parentEntry;
+            while (!queue.isEmpty()) { // пока очередь не пустая
+                parentEntry = queue.poll(); // забираем первый элемент из очереди
+                if (!parentEntry.hasChildren()) // если у элемента нет детей, то выходим из цикла
+                    break;
                 // пока у первого элемента в очереди есть потомки
-                queue.add(parentEntry.leftChild); // добавляем в конец очереди потомков извлеченного элемента
-                queue.add(parentEntry.rightChild); // сначала левого, за ним - правого
+                if (parentEntry.hasLeftChildren())
+                    queue.add(parentEntry.leftChild); // добавляем в конец очереди потомков извлеченного элемента
+                if (parentEntry.hasRightChildren())
+                    queue.add(parentEntry.rightChild); // сначала левого, за ним - правого
                 tempEntry = parentEntry;
             }
             if (tempEntry.availableToAddLeftChildren) {
@@ -61,9 +83,82 @@ public class CustomTree extends AbstractList<String> implements Cloneable, Seria
                 parentEntry.availableToAddLeftChildren = false;
                 entry.parent = parentEntry;
             }
-            size++;
+            size++; // увеличиваем размер
         }
         return true;
+    }
+
+    public boolean remove(Object o) {
+        if (!(o instanceof String)) throw new UnsupportedOperationException();
+        String element = (String) o;
+        Entry<String> removeElement = getEntry(element);
+        long count = 0;
+        Queue<Entry> queue = new LinkedList<>();
+        Entry entry;
+        queue.add(removeElement);
+        while (!queue.isEmpty()) {
+            entry = queue.poll();
+            count++;
+            if (entry.hasLeftChildren()) queue.add(entry.leftChild);
+            if (entry.hasRightChildren()) queue.add(entry.rightChild);
+        }
+        size -= count;
+
+        Entry<String> parent = removeElement.parent;
+        if (parent != null) {
+            if (parent.leftChild.equals(removeElement)) {
+                parent.leftChild = null;
+                parent.availableToAddLeftChildren = true;
+            } else {
+                parent.rightChild = null;
+                parent.availableToAddRightChildren = true;
+            }
+        }
+        return true;
+    }
+
+    public Entry getEntry(int index) {
+        Queue<Entry> queue = new LinkedList();
+        Entry entry;
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            entry = queue.poll();
+            if (entry.numberOfElement == index) return entry;
+            if (entry.hasLeftChildren()) queue.add(entry.leftChild);
+            if (entry.hasRightChildren()) queue.add(entry.rightChild);
+        }
+        return null;
+    }
+
+    public Entry getEntry(String elementName) {
+        Queue<Entry> queue = new LinkedList<>();
+        Entry entry;
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            entry = queue.poll();
+            if (entry.elementName.equals(elementName)) return entry;
+            if (entry.hasLeftChildren()) queue.add(entry.leftChild);
+            if (entry.hasRightChildren()) queue.add(entry.rightChild);
+        }
+        return null;
+    }
+
+    public void walkToTree() {
+        if (size == 0) return;
+        Queue<Entry> queue = new LinkedList<>();
+        Entry entry;
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            entry = queue.poll();
+            System.out.printf("Name of element: %s, number of element: %d%n", entry.elementName, entry.numberOfElement);
+            if (entry.hasLeftChildren()) queue.add(entry.leftChild);
+            if (entry.hasRightChildren()) queue.add(entry.rightChild);
+        }
+    }
+
+    public String getParent(String s) {
+        Entry<String> entry = getEntry(s);
+        return entry == null ? null : entry.parent.elementName;
     }
 
     @Override
