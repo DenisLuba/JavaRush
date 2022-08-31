@@ -12,8 +12,11 @@ import java.util.zip.ZipOutputStream;
 
 public class Test {
     public static void main(String[] args) {
-        int i = 58;
-        System.out.println((char) i);
+        byte[] d = new byte[] {90, 71, -47, 42, 46, 63, -97, -20, -14, -39, -70, 31, -39, -127, 82, -21};
 
+        StringBuilder s = new StringBuilder();
+
+        for (byte b : d) s.append(Integer.toHexString(b));
+        System.out.println(s);
     }
 }
