@@ -1,5 +1,9 @@
 package com.javarush.task.task22.task2213;
 
+/*
+    we write the code "from top to bottom". First, the classes, then the methods, then the implementation of the methods
+ */
+
 public class Tetris {
     private Field field;
     private Figure figure;
