@@ -23,7 +23,11 @@ public class Field {
     }
 
     public void print() {
-
+        for (int[] rows : matrix) {
+            for (int cell : rows)
+                System.out.print(cell == 0 ? '.' : 'X');
+            System.out.println();
+        }
     }
 
     public void removeFullLines() {
