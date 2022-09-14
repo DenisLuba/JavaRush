@@ -20,6 +20,7 @@ public class Solution {
                 DoubleString clientService = (DoubleString) registry.lookup(UNIC_BINDING_NAME);
                 String result = clientService.doubleString("str");
                 System.out.println(result);
+                Thread.currentThread().interrupt();
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             } catch (NotBoundException e) {
@@ -45,6 +46,12 @@ public class Solution {
 
         // Start the client
         CLIENT_THREAD.start();
-
+        Thread.sleep(500);
+        System.out.println(CLIENT_THREAD.isInterrupted());
+        System.out.println(Thread.currentThread().isInterrupted());
+        System.out.println(Thread.currentThread().getName());
+        Thread.currentThread().interrupt();
+        Thread.sleep(500);
+        System.out.println(Thread.currentThread().isInterrupted());
     }
 }
