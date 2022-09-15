@@ -1,10 +1,8 @@
 package com.javarush.task.task33.task3308;
 
-import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
