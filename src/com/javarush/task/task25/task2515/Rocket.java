@@ -5,11 +5,12 @@ public class Rocket extends BaseObject {
         super(x, y, 1);
     }
 
+    @Override
     public void move() {
-        double y = getY();
-        setY(--y);
+        y--;
     }
 
+    @Override
     public void draw(Canvas canvas) {
         canvas.setPoint(getX(), getY(), 'R');
     }
