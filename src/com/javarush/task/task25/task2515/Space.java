@@ -1,131 +1,213 @@
 package com.javarush.task.task25.task2515;
 
-import javax.swing.plaf.PanelUI;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Главный класс игры - Космос (Space)
+ */
 public class Space {
-    public static Space game;
+    //Ширина и высота игрового поля
     private int width;
     private int height;
+
+    //Космический корабль
     private SpaceShip ship;
-    private List<Ufo> ufos = new ArrayList<>();
-    private List<Rocket> rockets = new ArrayList<>();
-    private List<Bomb> bombs = new ArrayList<>();
+    //Список НЛО
+    private List<Ufo> ufos = new ArrayList<Ufo>();
+    //Список бомб
+    private List<Bomb> bombs = new ArrayList<Bomb>();
+    //Список ракет
+    private List<Rocket> rockets = new ArrayList<Rocket>();
 
     public Space(int width, int height) {
         this.width = width;
         this.height = height;
     }
 
-    public static void main(String[] args) {
-        game = new Space(20, 20);
-        game.setShip(new SpaceShip(10, 18));
-        game.run();
-    }
-
+    /**
+     * Основной цикл программы.
+     * Тут происходят все важные действия
+     */
     public void run() {
+        //Создаем холст для отрисовки.
         Canvas canvas = new Canvas(width, height);
 
+        //Создаем объект "наблюдатель за клавиатурой" и стартуем его.
         KeyboardObserver keyboardObserver = new KeyboardObserver();
         keyboardObserver.start();
 
+        //Игра работает, пока корабль жив
         while (ship.isAlive()) {
+            //"наблюдатель" содержит события о нажатии клавиш?
             if (keyboardObserver.hasKeyEvents()) {
                 KeyEvent event = keyboardObserver.getEventFromTop();
-                System.out.println(event.getKeyCode());
+                //Если "стрелка влево" - сдвинуть фигурку влево
+                System.out.print(event.getKeyCode());
                 if (event.getKeyCode() == KeyEvent.VK_LEFT)
                     ship.moveLeft();
+                    //Если "стрелка вправо" - сдвинуть фигурку вправо
                 else if (event.getKeyCode() == KeyEvent.VK_RIGHT)
                     ship.moveRight();
+                    //Если "пробел" - стреляем
                 else if (event.getKeyCode() == KeyEvent.VK_SPACE)
                     ship.fire();
             }
 
+            //двигаем все объекты игры
             moveAllItems();
 
+            //проверяем столкновения
             checkBombs();
             checkRockets();
+            //удаляем умершие объекты из списков
             removeDead();
+
+            //Создаем НЛО (1 раз в 10 ходов)
             createUfo();
+
+            //Отрисовываем все объекты на холст, а холст выводим на экран
             canvas.clear();
             draw(canvas);
             canvas.print();
+
+            //Пауза 300 миллисекунд
             Space.sleep(300);
         }
+
+        //Выводим сообщение "Game Over"
         System.out.println("Game Over!");
     }
 
+    /**
+     * Двигаем все объекты игры
+     */
     public void moveAllItems() {
-        for (BaseObject baseObject : getAllItems())
-            baseObject.move();
+        for (BaseObject object : getAllItems()) {
+            object.move();
+        }
     }
 
+    /**
+     * Метод возвращает общий список, который содержит все объекты игры
+     */
     public List<BaseObject> getAllItems() {
-        List<BaseObject> baseObjects = new ArrayList<>();
-        baseObjects.addAll(Space.game.getBombs());
-        baseObjects.addAll(Space.game.getUfos());
-        baseObjects.addAll(Space.game.getRockets());
-        baseObjects.add(Space.game.getShip());
-        return baseObjects;
+        ArrayList<BaseObject> list = new ArrayList<BaseObject>(ufos);
+        list.add(ship);
+        list.addAll(bombs);
+        list.addAll(rockets);
+        return list;
     }
 
+    /**
+     * Создаем новый НЛО. 1 раз на 10 вызовов.
+     */
     public void createUfo() {
-        if (Space.game.getUfos().isEmpty())
-            Space.game.getUfos().add(new Ufo(width / 2, 0));
+        if (ufos.size() > 0) return;
+
+        int random10 = (int) (Math.random() * 10);
+        if (random10 == 0) {
+            double x = Math.random() * width;
+            double y = Math.random() * height / 2;
+            ufos.add(new Ufo(x, y));
+        }
     }
 
+    /**
+     * Проверяем бомбы.
+     * а) столкновение с кораблем (бомба и корабль умирают)
+     * б) падение ниже края игрового поля (бомба умирает)
+     */
     public void checkBombs() {
-        for (Bomb bomb : Space.game.getBombs()) {
-            if (Space.game.getShip().isIntersect(bomb)) {
+        for (Bomb bomb : bombs) {
+            if (ship.isIntersect(bomb)) {
+                ship.die();
                 bomb.die();
-                Space.game.getShip().die();
             }
-            else if (bomb.getY() > height)
+
+            if (bomb.getY() >= height)
                 bomb.die();
         }
     }
 
+    /**
+     * Проверяем рокеты.
+     * а) столкновение с НЛО (ракета и НЛО умирают)
+     * б) вылет выше края игрового поля (ракета умирает)
+     */
     public void checkRockets() {
-        for (Rocket rocket : Space.game.getRockets()) {
-            for (Ufo ufo : Space.game.getUfos()) {
+        for (Rocket rocket : rockets) {
+            for (Ufo ufo : ufos) {
                 if (ufo.isIntersect(rocket)) {
                     ufo.die();
                     rocket.die();
                 }
-                else if (rocket.getY() <= 0)
-                    rocket.die();
             }
+
+            if (rocket.getY() <= 0)
+                rocket.die();
         }
     }
 
+    /**
+     * Удаляем умершие объекты (бомбы, ракеты, НЛО) из списков
+     */
     public void removeDead() {
-        for (int i = 0; i < Space.game.getUfos().size(); i++)
-            if (!Space.game.getUfos().get(i).isAlive()) {
-                Space.game.getUfos().remove(i);
-                i--;
-            }
+        for (BaseObject object : new ArrayList<BaseObject>(bombs)) {
+            if (!object.isAlive())
+                bombs.remove(object);
+        }
 
-        for (int i = 0; i < Space.game.getBombs().size(); i++)
-            if (!Space.game.getBombs().get(i).isAlive()) {
-                Space.game.getBombs().remove(i);
-                i--;
-            }
+        for (BaseObject object : new ArrayList<BaseObject>(rockets)) {
+            if (!object.isAlive())
+                rockets.remove(object);
+        }
 
-        for (int i = 0; i < Space.game.getRockets().size(); i++)
-            if (!Space.game.getRockets().get(i).isAlive()) {
-                Space.game.getRockets().remove(i);
-                i--;
-            }
+        for (BaseObject object : new ArrayList<BaseObject>(ufos)) {
+            if (!object.isAlive())
+                ufos.remove(object);
+        }
     }
 
-    public void draw(Canvas canvas) {}
+    /**
+     * Отрисовка всех объектов игры:
+     * а) заполняем весь холст точками.
+     * б) отрисовываем все объекты на холст.
+     */
+    public void draw(Canvas canvas) {
+        //draw game
+        for (int i = 0; i < width + 2; i++) {
+            for (int j = 0; j < height + 2; j++) {
+                canvas.setPoint(i, j, '.');
+            }
+        }
 
-    public static void sleep(int delay) {
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException ignored) {}
+        for (int i = 0; i < width + 2; i++) {
+            canvas.setPoint(i, 0, '-');
+            canvas.setPoint(i, height + 1, '-');
+        }
+
+        for (int i = 0; i < height + 2; i++) {
+            canvas.setPoint(0, i, '|');
+            canvas.setPoint(width + 1, i, '|');
+        }
+
+        for (BaseObject object : getAllItems()) {
+            object.draw(canvas);
+        }
+    }
+
+    public SpaceShip getShip() {
+        return ship;
+    }
+
+    public void setShip(SpaceShip ship) {
+        this.ship = ship;
+    }
+
+    public List<Ufo> getUfos() {
+        return ufos;
     }
 
     public int getWidth() {
@@ -136,25 +218,29 @@ public class Space {
         return height;
     }
 
-    public SpaceShip getShip() {
-        return ship;
-    }
-
-    public List<Ufo> getUfos() {
-        return ufos;
+    public List<Bomb> getBombs() {
+        return bombs;
     }
 
     public List<Rocket> getRockets() {
         return rockets;
     }
 
-    public List<Bomb> getBombs() {
-        return bombs;
+    public static Space game;
+
+    public static void main(String[] args) throws Exception {
+        game = new Space(20, 20);
+        game.setShip(new SpaceShip(10, 18));
+        game.run();
     }
 
-    public void setShip(SpaceShip ship) {
-        this.ship = ship;
+    /**
+     * Метод делает паузу длинной delay миллисекунд.
+     */
+    public static void sleep(int delay) {
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException ignored) {
+        }
     }
-
-
 }
