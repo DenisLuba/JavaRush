@@ -1,5 +1,7 @@
 package com.javarush.task.task25.task2515;
 
+import javax.swing.plaf.PanelUI;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,14 +20,80 @@ public class Space {
     }
 
     public static void main(String[] args) {
+        game = new Space(20, 20);
+        game.setShip(new SpaceShip(10, 18));
+        game.run();
+    }
+
+    public void run() {
+        Canvas canvas = new Canvas(width, height);
+
+        KeyboardObserver keyboardObserver = new KeyboardObserver();
+        keyboardObserver.start();
+
+        while (ship.isAlive()) {
+            if (keyboardObserver.hasKeyEvents()) {
+                KeyEvent event = keyboardObserver.getEventFromTop();
+                System.out.println(event.getKeyCode());
+                if (event.getKeyCode() == KeyEvent.VK_LEFT)
+                    ship.moveLeft();
+                else if (event.getKeyCode() == KeyEvent.VK_RIGHT)
+                    ship.moveRight();
+                else if (event.getKeyCode() == KeyEvent.VK_SPACE)
+                    ship.fire();
+            }
+
+            moveAllItems();
+
+            checkBombs();
+            checkRockets();
+            removeDead();
+            createUfo();
+            canvas.clear();
+            draw(canvas);
+            canvas.print();
+            Space.sleep(300);
+        }
+        System.out.println("Game Over!");
+    }
+
+    public void moveAllItems() {
+        for (BaseObject baseObject : getAllItems())
+            baseObject.move();
+    }
+
+    public List<BaseObject> getAllItems() {
+        List<BaseObject> baseObjects = new ArrayList<>();
+        baseObjects.addAll(Space.game.getBombs());
+        baseObjects.addAll(Space.game.getUfos());
+        baseObjects.addAll(Space.game.getRockets());
+        baseObjects.add(Space.game.getShip());
+        return baseObjects;
+    }
+
+    public void createUfo() {
 
     }
 
-    public void run() {}
+    public void checkBombs() {
 
-    public void draw() {}
+    }
 
-    public void sleep(int ms) {}
+    public void checkRockets() {
+
+    }
+
+    public void removeDead() {
+
+    }
+
+    public void draw(Canvas canvas) {}
+
+    public static void sleep(int delay) {
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException ignored) {}
+    }
 
     public int getWidth() {
         return width;
@@ -54,4 +122,6 @@ public class Space {
     public void setShip(SpaceShip ship) {
         this.ship = ship;
     }
+
+
 }
