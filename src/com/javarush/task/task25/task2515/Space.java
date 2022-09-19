@@ -72,19 +72,52 @@ public class Space {
     }
 
     public void createUfo() {
-
+        if (Space.game.getUfos().isEmpty())
+            Space.game.getUfos().add(new Ufo(width / 2, 0));
     }
 
     public void checkBombs() {
-
+        for (Bomb bomb : Space.game.getBombs()) {
+            if (Space.game.getShip().isIntersect(bomb)) {
+                bomb.die();
+                Space.game.getShip().die();
+            }
+            else if (bomb.getY() > height)
+                bomb.die();
+        }
     }
 
     public void checkRockets() {
-
+        for (Rocket rocket : Space.game.getRockets()) {
+            for (Ufo ufo : Space.game.getUfos()) {
+                if (ufo.isIntersect(rocket)) {
+                    ufo.die();
+                    rocket.die();
+                }
+                else if (rocket.getY() <= 0)
+                    rocket.die();
+            }
+        }
     }
 
     public void removeDead() {
+        for (int i = 0; i < Space.game.getUfos().size(); i++)
+            if (!Space.game.getUfos().get(i).isAlive()) {
+                Space.game.getUfos().remove(i);
+                i--;
+            }
 
+        for (int i = 0; i < Space.game.getBombs().size(); i++)
+            if (!Space.game.getBombs().get(i).isAlive()) {
+                Space.game.getBombs().remove(i);
+                i--;
+            }
+
+        for (int i = 0; i < Space.game.getRockets().size(); i++)
+            if (!Space.game.getRockets().get(i).isAlive()) {
+                Space.game.getRockets().remove(i);
+                i--;
+            }
     }
 
     public void draw(Canvas canvas) {}
