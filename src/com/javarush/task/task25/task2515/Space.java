@@ -20,6 +20,12 @@ public class Space {
 
     }
 
+    public void run() {}
+
+    public void draw() {}
+
+    public void sleep(int ms) {}
+
     public int getWidth() {
         return width;
     }
