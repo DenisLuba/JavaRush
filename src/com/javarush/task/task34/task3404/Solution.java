@@ -1,5 +1,7 @@
 package com.javarush.task.task34.task3404;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,10 +12,32 @@ public class Solution {
         Solution solution = new Solution();
         solution.recurse("sin(2*(-5+1.5*4)+28)", 0); // Expected output: 0.5 6
 
+        String[][] data = new String[][]{
+                {"sin(2*(-5+1.5*4)+28)", "0.5 6"},
+                {"tan(2025 ^ 0.5)", "1 2"},
+                {"1+(1+(1+1)*(1+1))*(1+1)+1", "12 8"},
+                {"-2^(-2)", "-0.25 3"},
+                {"-(-2^(-2))+2+(-(-2^(-2)))", "2.5 10"},
+                {"(-2)*(-2)", "4 3"},
+                {"sin(-30)", "-0.5 2"},
+                {"cos(-30)", "0.87 2"},
+                {"tan(-30)", "-0.58 2"},
+                {"2+8*(9/4-1.5)^(1+1)", "6.48 6"},
+                {"tan(44+sin(89-cos(180)^2))", "1 6"},
+                {"-cos(180)^2", "-1 3"},
+                {"0+0.304", "0.3 1"},
+                {"-0", "0 1"},
+                {"sin(3.14/2)^2 + cos(3.14/2)^2","1 7"},
+                {"sin(2*55) - 2*sin(55)*cos(55)","0 7"}
+        };
+
+        for (String[] o : data) {
+            solution.recurse(o[0], 0);
+        }
     }
 
     public void recurse(final String expression, int countOperation) {
-        System.out.println(expression);
+//        System.out.println(expression);
 
         String number = "-?\\d+\\.?\\d*";
         String newExpression = expression.replace(" ", "");
@@ -36,9 +60,8 @@ public class Solution {
         if (matcher.find()) {
             String string = newExpression.substring(matcher.start(), matcher.end());
             String[] values = string.split("\\^");
-            Double grade = Math.pow(Double.parseDouble(values[0]), Double.parseDouble(values[1]));
-            String result = String.format("%.2f", grade).replace(",", ".");
-            newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
+            double grade = Math.pow(Double.parseDouble(values[0]), Double.parseDouble(values[1]));
+            newExpression = newExpression.substring(0, matcher.start()) + grade + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
@@ -49,9 +72,8 @@ public class Solution {
         if (matcher.find()) {
             String string = newExpression.substring(matcher.start(), matcher.end());
             String[] values = string.split("\\*");
-            Double product = Double.parseDouble(values[0]) * Double.parseDouble(values[1]);
-            String result = String.format("%.2f", product).replace(",", ".");
-            newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
+            double product = Double.parseDouble(values[0]) * Double.parseDouble(values[1]);
+            newExpression = newExpression.substring(0, matcher.start()) + product + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
@@ -62,9 +84,8 @@ public class Solution {
         if (matcher.find()) {
             String string = newExpression.substring(matcher.start(), matcher.end());
             String[] values = string.split("/");
-            Double quotient = Double.parseDouble(values[0]) / Double.parseDouble(values[1]);
-            String result = String.format("%.2f", quotient).replace(",", ".");
-            newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
+            double quotient = Double.parseDouble(values[0]) / Double.parseDouble(values[1]);
+            newExpression = newExpression.substring(0, matcher.start()) + quotient + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
@@ -75,9 +96,8 @@ public class Solution {
         if (matcher.find()) {
             String string = newExpression.substring(matcher.start(), matcher.end());
             String[] values = string.split("\\+");
-            Double sum = Double.parseDouble(values[0]) + Double.parseDouble(values[1]);
-            String result = String.format("%.2f", sum).replace(",", ".");
-            newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
+            double sum = Double.parseDouble(values[0]) + Double.parseDouble(values[1]);
+            newExpression = newExpression.substring(0, matcher.start()) + sum + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
@@ -91,9 +111,8 @@ public class Solution {
             List<String> values = new ArrayList<>();
             while (m.find())
                 values.add(m.group());
-            Double difference = Double.parseDouble(values.get(0)) - Double.parseDouble(values.get(1));
-            String result = String.format("%.2f", difference).replace(",", ".");
-            newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
+            double difference = Double.parseDouble(values.get(0)) - Double.parseDouble(values.get(1));
+            newExpression = newExpression.substring(0, matcher.start()) + difference + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
@@ -102,9 +121,8 @@ public class Solution {
         pattern = Pattern.compile("sin" + number);
         matcher = pattern.matcher(newExpression);
         if (matcher.find()) {
-            Double sin = Math.sin(Math.toRadians(Double.parseDouble(matcher.group().replace("sin", ""))));
-            String result = String.format("%.2f", sin).replace(",", ".");
-            newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
+            double sin = Math.sin(Math.toRadians(Double.parseDouble(matcher.group().replace("sin", ""))));
+            newExpression = newExpression.substring(0, matcher.start()) + sin + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
@@ -113,9 +131,8 @@ public class Solution {
         pattern = Pattern.compile("cos" + number);
         matcher = pattern.matcher(newExpression);
         if (matcher.find()) {
-            Double cos = Math.cos(Math.toRadians(Double.parseDouble(matcher.group().replace("cos", ""))));
-            String result = String.format("%.2f", cos).replace(",", ".");
-            newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
+            double cos = Math.cos(Math.toRadians(Double.parseDouble(matcher.group().replace("cos", ""))));
+            newExpression = newExpression.substring(0, matcher.start()) + cos + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
@@ -124,13 +141,21 @@ public class Solution {
         pattern = Pattern.compile("tan" + number);
         matcher = pattern.matcher(newExpression);
         if (matcher.find()) {
-            Double tan = Math.tan(Math.toRadians(Double.parseDouble(matcher.group().replace("tan", ""))));
-            String result = String.format("%.2f", tan).replace(",", ".");
-            newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
+            double tan = Math.tan(Math.toRadians(Double.parseDouble(matcher.group().replace("tan", ""))));
+            newExpression = newExpression.substring(0, matcher.start()) + tan + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
-        System.out.println(newExpression + " " + countOperation);
+
+        Double result = 0.0;
+        try {
+            result = Double.parseDouble(newExpression);
+        } catch (NumberFormatException e) {
+            System.out.println("the result is not a number");
+        }
+        result = new BigDecimal(result).setScale(2, RoundingMode.HALF_UP).doubleValue();
+
+        System.out.println(result + " " + countOperation);
     }
 
     public Solution() {}
