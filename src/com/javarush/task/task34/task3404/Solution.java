@@ -102,7 +102,7 @@ public class Solution {
         pattern = Pattern.compile("sin" + number);
         matcher = pattern.matcher(newExpression);
         if (matcher.find()) {
-            Double sin = Math.sin(Double.parseDouble(matcher.group().replace("sin", "")));
+            Double sin = Math.sin(Math.toRadians(Double.parseDouble(matcher.group().replace("sin", ""))));
             String result = String.format("%.2f", sin).replace(",", ".");
             newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
@@ -113,7 +113,7 @@ public class Solution {
         pattern = Pattern.compile("cos" + number);
         matcher = pattern.matcher(newExpression);
         if (matcher.find()) {
-            Double cos = Math.cos(Double.parseDouble(matcher.group().replace("cos", "")));
+            Double cos = Math.cos(Math.toRadians(Double.parseDouble(matcher.group().replace("cos", ""))));
             String result = String.format("%.2f", cos).replace(",", ".");
             newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
@@ -124,13 +124,12 @@ public class Solution {
         pattern = Pattern.compile("tan" + number);
         matcher = pattern.matcher(newExpression);
         if (matcher.find()) {
-            Double tan = Math.tan(Double.parseDouble(matcher.group().replace("tan", "")));
+            Double tan = Math.tan(Math.toRadians(Double.parseDouble(matcher.group().replace("tan", ""))));
             String result = String.format("%.2f", tan).replace(",", ".");
             newExpression = newExpression.substring(0, matcher.start()) + result + newExpression.substring(matcher.end());
             recurse(newExpression, ++countOperation);
             return;
         }
-
         System.out.println(newExpression + " " + countOperation);
     }
 
