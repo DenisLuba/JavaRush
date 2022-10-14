@@ -1,9 +1,12 @@
 package com.javarush.task.Test;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class Test {
     public static void main(String[] args) {
-        char c = 32;
-        System.out.println("\"" + c + "\"");
+        int i = new BigDecimal(4.000001).setScale(0, RoundingMode.UP).intValue();
+        System.out.println(i);
     }
 
 }
