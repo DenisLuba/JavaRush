@@ -1,12 +1,12 @@
 package com.javarush.task.task37.task3707;
 
-import java.io.Serializable;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
 public class AmigoSet<E> extends AbstractSet<E> implements Serializable, Cloneable, Set<E> {
-    private Object PRESENT = new Object();
+    private static final Object PRESENT = new Object();
     private transient HashMap<E,Object> map;
 
     public AmigoSet() {
@@ -80,5 +80,27 @@ public class AmigoSet<E> extends AbstractSet<E> implements Serializable, Cloneab
             throw new InternalError();
         }
         return amigoSet;
+    }
+
+
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.defaultWriteObject();
+        Integer capacity = HashMapReflectionHelper.callHiddenMethod(map, "capacity");
+        Float loadFactor = HashMapReflectionHelper.callHiddenMethod(map, "loadFactor");
+        stream.writeObject(capacity);
+        stream.writeObject(loadFactor);
+        stream.writeObject(size());
+        for (E e : map.keySet())
+            stream.writeObject(e);
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        int capacity = (int) stream.readObject();
+        float loadFactor = (float) stream.readObject();
+        map = new HashMap<>(capacity, loadFactor);
+        int size = (int) stream.readObject();
+        for (int i = 0; i < size; i++)
+            map.put((E) stream.readObject(), PRESENT);
     }
 }
