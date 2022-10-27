@@ -20,15 +20,15 @@ public class Solution {
 
     public Set<Integer> getAllFriendsAndPotentialFriends(int index, int deep) {
         Set<Integer> treeSet = new TreeSet<>();
-        for (int i = 0; i < index; i++) {
-                if (humanRelationships[index][i]) {
+        if (deep > 0) {
+            for (int i = 0; i < humanRelationships.length; i++) {
+                if (i < index && humanRelationships[index][i] || index < i && humanRelationships[i][index]) {
                     treeSet.add(i);
-                    if (deep > 0) {
-                        int d = deep - 1;
-                        treeSet.addAll(getAllFriendsAndPotentialFriends(i, d));
-                    }
+                    treeSet.addAll(getAllFriendsAndPotentialFriends(i, deep - 1));
                 }
+            }
         }
+        treeSet.remove(index);
         return treeSet;
     }
 
