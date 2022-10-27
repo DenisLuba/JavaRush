@@ -38,7 +38,7 @@ public class RedBlackTree {
                 parent = current;
                 current = item > current.element ? current.right : current.left;
 
-                if (current.left.color == Color.RED && current.right.color == Color.BLACK) {
+                if (current.left.color == Color.RED && current.right.color == Color.RED) {
                     reorient(item);
                 }
             }
@@ -95,10 +95,10 @@ public class RedBlackTree {
         }
 
         private Node rotateWithRightNode(Node element) {
-            Node left = element.left;
-            element.left = left.right;
-            left.right = element;
-            return left;
+           Node right = element.right;
+           element.right = right.left;
+           right.left = element;
+           return right;
         }
 
         public static enum Color {
