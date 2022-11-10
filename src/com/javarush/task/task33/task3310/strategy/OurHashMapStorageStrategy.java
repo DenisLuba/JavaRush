@@ -1,11 +1,13 @@
 package com.javarush.task.task33.task3310.strategy;
 
+import java.util.Objects;
+
 public class OurHashMapStorageStrategy implements StorageStrategy {
 
     static final int DEFAULT_INITIAL_CAPACITY = 16;
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
     Entry[] table = new Entry[DEFAULT_INITIAL_CAPACITY];
-    int size;
+    int size = 0;
     int threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
     float loadFactor = DEFAULT_LOAD_FACTOR;
 
@@ -18,15 +20,16 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
         return hash & (length - 1);
     }
 
+    // getEntry
     public Entry getEntry(Long key) {
-        int hash = (key == null) ? 0 : hash(key);
-        for (Entry entry = table[indexFor(hash, table.length)];
+        int hash = hash(key);
+        int bucketIndex = indexFor(hash, table.length);
+
+        for (Entry entry = table[bucketIndex];
              entry != null;
              entry = entry.next) {
 
-            Object k;
-            if (entry.hash == hash &&
-                    ((k = entry.key) == key || (key != null && key.equals(k))))
+            if (entry.hash == hash && Objects.equals(entry.key, key))
                 return entry;
         }
         return null;
@@ -64,17 +67,27 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
         }
     }
 
-    public void addEntry(int hash, Long key, String value, int bucketIndex) {
-        Entry entry = table[bucketIndex];
-        table[bucketIndex] = new Entry(hash, key, value, entry);
-        if (size++ >= threshold)
-            resize(2 * table.length);
+
+    // addEntry
+
+    private void addEntry(int hash, Long key, String value, int bucketIndex) {
+        for (Entry entry = table[bucketIndex]; entry != null;
+             entry = entry.next) {
+
+            if (entry.hash == hash && Objects.equals(entry.key, key)) {
+                entry.value = value;
+                return;
+            }
+        }
+        createEntry(hash, key, value, bucketIndex);
     }
 
+    // createEntry
     public void createEntry(int hash, Long key, String value, int bucketIndex) {
         Entry entry = table[bucketIndex];
         table[bucketIndex] = new Entry(hash, key, value, entry);
-        size++;
+
+        if (++size >= threshold) resize(table.length * 2);
     }
 
     @Override
@@ -95,15 +108,9 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
     @Override
     public void put(Long key, String value) {
         int hash = hash(key);
-        int index = indexFor(hash, table.length);
-        for (Entry entry = table[indexFor(hash, table.length)];
-        entry != null;
-        entry = entry.next) {
-            Object k;
-            if (entry.hash == hash && ((k = entry.key) == key || key.equals(k)))
-                return;
-        }
-        addEntry(hash, key, value, index);
+        int bucketIndex = indexFor(hash, table.length);
+
+        addEntry(hash, key, value, bucketIndex);
     }
 
     @Override
