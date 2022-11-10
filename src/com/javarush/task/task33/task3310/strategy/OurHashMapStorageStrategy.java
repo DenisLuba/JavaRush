@@ -11,11 +11,13 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
     int threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
     float loadFactor = DEFAULT_LOAD_FACTOR;
 
+    // hash
     public static int hash(Long k) {
         int h;
         return (k == null) ? 0 : (h = k.hashCode()) ^ (h >>> 16);
     }
 
+    // indexFor
     public int indexFor(int hash, int length) {
         return hash & (length - 1);
     }
@@ -35,10 +37,9 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
         return null;
     }
 
+    // resize
     public void resize(int newCapacity) {
-        Entry[] oldTable = table;
-        int oldCapacity = oldTable.length;
-        if (oldCapacity == (1 << 30)) {
+        if (table.length == (1 << 30)) {
             threshold = Integer.MAX_VALUE;
             return;
         }
@@ -49,29 +50,29 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
         threshold = (int) (newCapacity * loadFactor);
     }
 
+    // transfer
     public void transfer(Entry[] newTable) {
-        Entry[] src = table;
-        int newCapacity = newTable.length;
-        for (int j = 0; j < src.length; j++) {
-            Entry entry = src[j];
+        for (int i = 0; i < table.length; i++) {
+            Entry entry = table[i];
+
             if (entry != null) {
-                src[j] = null;
+                table[i] = null;
                 do {
                     Entry next = entry.next;
-                    int i = indexFor(entry.hash, newCapacity);
-                    entry.next = newTable[i];
-                    newTable[i] = entry;
+                    int bucketIndex = indexFor(entry.hash, newTable.length); // место в новой таблице
+                    entry.next = newTable[bucketIndex]; // теперь у entry новый next (если null, то null,
+                    // иначе - тот, что добавили в предудущей итерации)
+                    newTable[bucketIndex] = entry;
                     entry = next;
                 } while (entry != null);
             }
         }
     }
 
-
     // addEntry
-
     private void addEntry(int hash, Long key, String value, int bucketIndex) {
-        for (Entry entry = table[bucketIndex]; entry != null;
+        for (Entry entry = table[bucketIndex];
+             entry != null;
              entry = entry.next) {
 
             if (entry.hash == hash && Objects.equals(entry.key, key)) {
@@ -87,24 +88,22 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
         Entry entry = table[bucketIndex];
         table[bucketIndex] = new Entry(hash, key, value, entry);
 
-        if (++size >= threshold) resize(table.length * 2);
+        if (++size >= threshold) resize(table.length << 1);
     }
 
+    // containsKey
     @Override
     public boolean containsKey(Long key) {
         return getEntry(key) != null;
     }
 
+    // containsValue
     @Override
     public boolean containsValue(String value) {
-        Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            for (Entry entry = tab[i]; entry != null; entry = entry.next)
-                if (value.equals(entry.value))
-                    return true;
-        return false;
+        return getKey(value) != null;
     }
 
+    // put
     @Override
     public void put(Long key, String value) {
         int hash = hash(key);
@@ -113,21 +112,24 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
         addEntry(hash, key, value, bucketIndex);
     }
 
+    // getKey
     @Override
     public Long getKey(String value) {
-        for (int i = 0; i < table.length; i++)
-            if (table[i].getValue().equals(value))
-                return table[i].getKey();
+        for (Entry bucket : table)
+            for (Entry entry = bucket;
+                 entry != null;
+                 entry = entry.next)
+
+                if (entry.getValue().equals(value))
+                    return entry.getKey();
 
         return null;
     }
 
+    // getValue
     @Override
     public String getValue(Long key) {
-        for (int i = 0; i < table.length; i++)
-            if (table[i].getKey() == key)
-                return table[i].getValue();
-
-        return null;
+        Entry entry = getEntry(key);
+        return entry != null ? entry.getValue() : null;
     }
 }
