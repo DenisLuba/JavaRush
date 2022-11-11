@@ -2,7 +2,7 @@ package com.javarush.task.task33.task3310.strategy;
 
 import com.javarush.task.task33.task3310.ExceptionHandler;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -31,10 +31,21 @@ public class FileBucket {
     }
 
     public void putEntry(Entry entry) {
-
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(Files.newOutputStream(path))) {
+            outputStream.writeObject(entry);
+        } catch (IOException e) {
+            ExceptionHandler.log(e);
+        }
     }
 
     public Entry getEntry() {
+        if (getFileSize() > 0) {
+            try (ObjectInputStream inputStream = new ObjectInputStream(Files.newInputStream(path))) {
+                return (Entry) inputStream.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                ExceptionHandler.log(e);
+            }
+        }
 
         return null;
     }
