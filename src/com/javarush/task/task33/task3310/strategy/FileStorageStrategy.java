@@ -2,14 +2,22 @@ package com.javarush.task.task33.task3310.strategy;
 
 import java.util.Objects;
 
-public class OurHashMapStorageStrategy implements StorageStrategy {
-
+public class FileStorageStrategy implements StorageStrategy {
     static final int DEFAULT_INITIAL_CAPACITY = 16;
-    static final float DEFAULT_LOAD_FACTOR = 0.75f;
-    Entry[] table = new Entry[DEFAULT_INITIAL_CAPACITY];
+    static final long DEFAULT_BUCKET_SIZE_LIMIT = 10_000;
+
+    FileBucket[] table = new FileBucket[DEFAULT_INITIAL_CAPACITY];
     int size = 0;
-    int threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
-    float loadFactor = DEFAULT_LOAD_FACTOR;
+    long bucketSizeLimit = DEFAULT_BUCKET_SIZE_LIMIT;
+    long maxBucketSize;
+
+    public long getBucketSizeLimit() {
+        return bucketSizeLimit;
+    }
+
+    public void setBucketSizeLimit(long bucketSizeLimit) {
+        this.bucketSizeLimit = bucketSizeLimit;
+    }
 
     // hash
     public static int hash(Long key) {
@@ -27,7 +35,9 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
         int hash = hash(key);
         int bucketIndex = indexFor(hash, table.length);
 
-        for (Entry entry = table[bucketIndex];
+        FileBucket bucket = table[bucketIndex];
+
+        for (Entry entry = bucket.getEntry();
              entry != null;
              entry = entry.next) {
 
@@ -40,30 +50,32 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
     // resize
     public void resize(int newCapacity) {
         if (table.length == (1 << 30)) {
-            threshold = Integer.MAX_VALUE;
+            bucketSizeLimit = Integer.MAX_VALUE;
             return;
         }
 
-        Entry[] newTable = new Entry[newCapacity];
+        FileBucket[] newTable = new FileBucket[newCapacity];
         transfer(newTable);
         table = newTable;
-        threshold = (int) (newCapacity * loadFactor);
+        bucketSizeLimit = bucketSizeLimit << 1; // bucketSizeLimit * 2
     }
 
     // transfer
-    public void transfer(Entry[] newTable) {
+    public void transfer(FileBucket[] newTable) {
         for (int i = 0; i < table.length; i++) {
-            Entry entry = table[i];
+            FileBucket bucket = table[i];
+            Entry entry = bucket.getEntry();
 
             if (entry != null) {
-                table[i] = null;
+                table[i].remove();
                 do {
-                    Entry next = entry.next;
+                    Entry next = entry.next; // создаем ссылку на следующую entry, привязанную к данной
                     int bucketIndex = indexFor(entry.hash, newTable.length); // место в новой таблице
-                    entry.next = newTable[bucketIndex]; // теперь у entry новый next (если null, то null,
-                    // иначе - тот, что добавили в предудущей итерации)
-                    newTable[bucketIndex] = entry;
-                    entry = next;
+                    entry.next = newTable[bucketIndex].getEntry(); // вытаскиваем из файла entries
+                    newTable[bucketIndex].remove(); // удаляем файл, чтобы потом записать новый
+                    newTable[bucketIndex] = new FileBucket(); // создаем новый пустой файл
+                    newTable[bucketIndex].putEntry(entry); // записываем в него новый файл с добавленной entry
+                    entry = next; // переходим к следующей entry, которая уже отвязана от предыдущей entry, которую уже упаковали
                 } while (entry != null);
             }
         }
@@ -71,8 +83,9 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
 
     // addEntry
     private void addEntry(int hash, Long key, String value, int bucketIndex) {
-        for (Entry entry = table[bucketIndex];
-             entry != null;
+        Entry entry = table[bucketIndex].getEntry();
+
+        for ( ; entry != null;
              entry = entry.next) {
 
             if (entry.hash == hash && Objects.equals(entry.key, key)) {
@@ -85,10 +98,19 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
 
     // createEntry
     public void createEntry(int hash, Long key, String value, int bucketIndex) {
-        Entry entry = table[bucketIndex];
-        table[bucketIndex] = new Entry(hash, key, value, entry);
+        long fileSize = table[bucketIndex].getFileSize();
+        Entry entry = null;
+        if (fileSize > 0) {
+            entry = table[bucketIndex].getEntry();
+            table[bucketIndex].remove();
+        }
 
-        if (++size >= threshold) resize(table.length << 1);
+        table[bucketIndex] = new FileBucket();
+        table[bucketIndex].putEntry(new Entry(hash, key, value, entry));
+
+        size += (table[bucketIndex].getFileSize() - fileSize); // добавили новый размер, вычли старый
+
+        if (size >= bucketSizeLimit) resize(table.length << 1);
     }
 
     // containsKey
@@ -115,8 +137,8 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
     // getKey
     @Override
     public Long getKey(String value) {
-        for (Entry bucket : table)
-            for (Entry entry = bucket;
+        for (FileBucket bucket : table)
+            for (Entry entry = bucket.getEntry();
                  entry != null;
                  entry = entry.next)
 
