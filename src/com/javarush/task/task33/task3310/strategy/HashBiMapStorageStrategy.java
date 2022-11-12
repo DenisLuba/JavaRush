@@ -4,7 +4,7 @@ import com.google.common.collect.HashBiMap;
 
 public class HashBiMapStorageStrategy implements StorageStrategy {
 
-    HashBiMap<Long, String> data;
+    private HashBiMap<Long, String> data;
 
     public HashBiMapStorageStrategy() {
         data = HashBiMap.create();

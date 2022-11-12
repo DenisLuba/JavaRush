@@ -9,17 +9,7 @@ import org.junit.Test;
 
 public class FunctionalTest extends TestCase {
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    public void testStorage(Shortener shortener) {
+    private void testStorage(Shortener shortener) {
         String string_1 = Helper.generateRandomString();
         String string_2 = Helper.generateRandomString();
         String string_3 = string_1;

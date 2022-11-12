@@ -4,7 +4,7 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 public class DualHashBidiMapStorageStrategy implements StorageStrategy {
 
-    DualHashBidiMap<Long, String> data;
+    private DualHashBidiMap<Long, String> data;
 
     public DualHashBidiMapStorageStrategy() {
         data = new DualHashBidiMap<>();

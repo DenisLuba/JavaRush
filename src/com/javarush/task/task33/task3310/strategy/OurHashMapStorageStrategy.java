@@ -4,21 +4,21 @@ import java.util.Objects;
 
 public class OurHashMapStorageStrategy implements StorageStrategy {
 
-    static final int DEFAULT_INITIAL_CAPACITY = 16;
-    static final float DEFAULT_LOAD_FACTOR = 0.75f;
-    Entry[] table = new Entry[DEFAULT_INITIAL_CAPACITY];
-    int size = 0;
-    int threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
-    float loadFactor = DEFAULT_LOAD_FACTOR;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    private Entry[] table = new Entry[DEFAULT_INITIAL_CAPACITY];
+    private int size = 0;
+    private int threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
+    private float loadFactor = DEFAULT_LOAD_FACTOR;
 
     // hash
-    public static int hash(Long key) {
+    private static int hash(Long key) {
         int h;
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
     // indexFor
-    public int indexFor(int hash, int length) {
+    private int indexFor(int hash, int length) {
         return hash & (length - 1);
     }
 
@@ -29,16 +29,16 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
 
         for (Entry entry = table[bucketIndex];
              entry != null;
-             entry = entry.next) {
+             entry = entry.getNext()) {
 
-            if (entry.hash == hash && Objects.equals(entry.key, key))
+            if (entry.getHash() == hash && Objects.equals(entry.getKey(), key))
                 return entry;
         }
         return null;
     }
 
     // resize
-    public void resize(int newCapacity) {
+    private void resize(int newCapacity) {
         if (table.length == (1 << 30)) {
             threshold = Integer.MAX_VALUE;
             return;
@@ -51,16 +51,16 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
     }
 
     // transfer
-    public void transfer(Entry[] newTable) {
+    private void transfer(Entry[] newTable) {
         for (int i = 0; i < table.length; i++) {
             Entry entry = table[i];
 
             if (entry != null) {
                 table[i] = null;
                 do {
-                    Entry next = entry.next;
-                    int bucketIndex = indexFor(entry.hash, newTable.length); // место в новой таблице
-                    entry.next = newTable[bucketIndex]; // теперь у entry новый next (если null, то null,
+                    Entry next = entry.getNext();
+                    int bucketIndex = indexFor(entry.getHash(), newTable.length); // место в новой таблице
+                    entry.setNext(newTable[bucketIndex]); // теперь у entry новый next (если null, то null,
                     // иначе - тот, что добавили в предудущей итерации)
                     newTable[bucketIndex] = entry;
                     entry = next;
@@ -73,10 +73,10 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
     private void addEntry(int hash, Long key, String value, int bucketIndex) {
         for (Entry entry = table[bucketIndex];
              entry != null;
-             entry = entry.next) {
+             entry = entry.getNext()) {
 
-            if (entry.hash == hash && Objects.equals(entry.key, key)) {
-                entry.value = value;
+            if (entry.getHash() == hash && Objects.equals(entry.getKey(), key)) {
+                entry.setValue(value);
                 return;
             }
         }
@@ -84,7 +84,7 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
     }
 
     // createEntry
-    public void createEntry(int hash, Long key, String value, int bucketIndex) {
+    private void createEntry(int hash, Long key, String value, int bucketIndex) {
         Entry entry = table[bucketIndex];
         table[bucketIndex] = new Entry(hash, key, value, entry);
 
@@ -118,7 +118,7 @@ public class OurHashMapStorageStrategy implements StorageStrategy {
         for (Entry bucket : table)
             for (Entry entry = bucket;
                  entry != null;
-                 entry = entry.next)
+                 entry = entry.getNext())
 
                 if (entry.getValue().equals(value))
                     return entry.getKey();

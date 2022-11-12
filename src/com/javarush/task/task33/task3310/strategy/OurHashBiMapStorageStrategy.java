@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 public class OurHashBiMapStorageStrategy implements StorageStrategy {
 
-    HashMap<Long, String> k2v;
-    HashMap<String, Long>  v2k;
+    private HashMap<Long, String> k2v;
+    private HashMap<String, Long>  v2k;
 
     public OurHashBiMapStorageStrategy() {
         k2v = new HashMap<>();

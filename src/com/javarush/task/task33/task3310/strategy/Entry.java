@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Entry implements Serializable {
-    Long key;
-    String value;
-    Entry next;
-    int hash;
+    private final int hash;
+    private final Long key;
+    private String value;
+    private Entry next;
 
     public Entry(int hash, Long key, String value, Entry next) {
         this.hash = hash;
@@ -22,6 +22,22 @@ public class Entry implements Serializable {
 
     public String getValue() {
         return value;
+    }
+
+    public Entry getNext() {
+        return next;
+    }
+
+    public int getHash() {
+        return hash;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public void setNext(Entry next) {
+        this.next = next;
     }
 
     @Override

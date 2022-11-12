@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SpeedTest extends TestCase {
-    public long getTimeToGetIds(Shortener shortener, Set<String> strings, Set<Long> ids) {
+    private long getTimeToGetIds(Shortener shortener, Set<String> strings, Set<Long> ids) {
         long start = new Date().getTime();
 
         for (String string : strings)
@@ -21,7 +21,7 @@ public class SpeedTest extends TestCase {
         return (new Date().getTime() - start);
     }
 
-    public long getTimeToGetStrings(Shortener shortener, Set<Long> ids, Set<String> strings) {
+     private long getTimeToGetStrings(Shortener shortener, Set<Long> ids, Set<String> strings) {
         long start = new Date().getTime();
 
         for (Long id : ids)
