@@ -13,6 +13,7 @@ public class Solution {
         testStrategy(new OurHashMapStorageStrategy(), 10_000);
         testStrategy(new OurHashBiMapStorageStrategy(), 10_000);
         testStrategy(new HashBiMapStorageStrategy(), 10_000);
+        testStrategy(new DualHashBidiMapStorageStrategy(), 10_000);
         testStrategy(new FileStorageStrategy(), 100);
     }
 
