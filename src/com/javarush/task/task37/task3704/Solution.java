@@ -42,7 +42,6 @@ public class Solution {
         ********* Values *********
         text 1
         text 2
-
          */
     }
 
