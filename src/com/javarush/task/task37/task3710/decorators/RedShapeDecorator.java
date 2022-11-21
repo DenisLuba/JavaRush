@@ -8,13 +8,13 @@ public class RedShapeDecorator extends ShapeDecorator {
         super(decoratedShape);
     }
 
-    private void setBorderColor() {
+    private void setBorderColor(Shape decoratedShape) {
         System.out.printf("Setting the border color for %s to red.\n", decoratedShape.getClass().getSimpleName());
     }
 
     @Override
     public void draw() {
-        setBorderColor();
+        setBorderColor(decoratedShape);
         super.draw();
     }
 }
