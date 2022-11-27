@@ -1,22 +1,17 @@
 package com.javarush.task.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Test {
 
 
-    public static void main(String[] args) {
-        int count_0 = 0;
-        int count_1 = 0;
-        int count_2 = 0;
+    public static void main(String[] args) throws ParseException {
+        Date date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse("21.10.2021 19:45:25");
+        System.out.println(date);
 
-        for(int i = 0; i < 10000; i++) {
-            int random = (int) (Math.random() * 3);
-            switch (random) {
-                case 0 -> count_0++;
-                case 1 -> count_1++;
-                case 2 -> count_2++;
-            }
-        }
-
-        System.out.printf("0 = %d\n1 = %d\n2 = %d", count_0, count_1, count_2);
+        date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse("29.2.2028 5:4:7");
+        System.out.println(date);
     }
 }
