@@ -15,6 +15,6 @@ public class Test {
 
 
 
-        System.out.println("*" + "STATUS 15".replaceFirst("[^A-Z_]*", "") + "*");
+        System.out.println("*" + "STATUS 15".replaceAll("[^A-Z_]*", "") + "*");
     }
 }
