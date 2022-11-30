@@ -1,6 +1,7 @@
 package com.javarush.task.task39.task3913;
 
 import com.javarush.task.task39.task3913.query.DateQuery;
+import com.javarush.task.task39.task3913.query.EventQuery;
 import com.javarush.task.task39.task3913.query.IPQuery;
 import com.javarush.task.task39.task3913.query.UserQuery;
 
@@ -13,7 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MyLogParser implements IPQuery, UserQuery, DateQuery {
+public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     private final Path logDirectory;
     private Set<Log> logs;
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d.M.yyyy H:m:s");
@@ -247,6 +248,95 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery {
                 .collect(Collectors.toSet());
     }
 
+//                               EventQuery
+
+//    **************************************************************
+
+    @Override
+    public int getNumberOfAllEvents(Date after, Date before) {
+        return (int) logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before))
+                .count();
+    }
+
+    @Override
+    public Set<Event> getAllEvents(Date after, Date before) {
+        return logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before))
+                .map(Log::getEvent)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Event> getEventsForIP(String ip, Date after, Date before) {
+        return logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.ip.equals(ip))
+                .map(Log::getEvent)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Event> getEventsForUser(String user, Date after, Date before) {
+        return logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.user.equals(user))
+                .map(Log::getEvent)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Event> getFailedEvents(Date after, Date before) {
+        return logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.status.equals(Status.FAILED))
+                .map(Log::getEvent)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Event> getErrorEvents(Date after, Date before) {
+        return logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.status.equals(Status.ERROR))
+                .map(Log::getEvent)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public int getNumberOfAttemptToSolveTask(int task, Date after, Date before) {
+        return (int) logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.event.equals(Event.SOLVE_TASK)
+                        && log.taskNumber == task)
+                .count();
+    }
+
+    @Override
+    public int getNumberOfSuccessfulAttemptToSolveTask(int task, Date after, Date before) {
+        return (int) logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.event.equals(Event.DONE_TASK)
+                        && log.taskNumber == task
+                        && log.status.equals(Status.OK))
+                .count();
+    }
+
+    @Override
+    public Map<Integer, Integer> getAllSolvedTasksAndTheirNumber(Date after, Date before) {
+        return logs.stream()
+                .collect(Collectors.toMap(log -> log.taskNumber,
+                        log -> this.getNumberOfAttemptToSolveTask(log.taskNumber, after, before)));
+    }
+
+    @Override
+    public Map<Integer, Integer> getAllDoneTasksAndTheirNumber(Date after, Date before) {
+        return logs.stream()
+                .map(Log::getTaskNumber)
+                .distinct()
+                .collect(Collectors.toMap(task -> task, task -> this.getNumberOfSuccessfulAttemptToSolveTask(task, after, before)));
+    }
+
 //    **************************************************************
 
     private static Stream<String> getLines(Path path) {
@@ -261,7 +351,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery {
     private void readLogs() {
         try (Stream<String> lines = Files.walk(logDirectory).filter(file -> file.toString().toLowerCase().endsWith(".log"))
         .flatMap(MyLogParser::getLines)){
-            logs = lines.map(Log::new).collect(Collectors.toCollection(() -> new TreeSet<Log>(Comparator.comparing(Log::getDate))));
+            logs = lines.map(Log::new).collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Log::getDate))));
         } catch (IOException ignore) {}
     }
 
@@ -274,6 +364,10 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery {
         }
         return current.after(after) && current.before(before);
     }
+
+//                               Inner class Log
+
+//    **************************************************************
 
     private static class Log {
         private String ip;
@@ -352,68 +446,5 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery {
         public Status getStatus() {
             return status;
         }
-    }
-
-    private Date readDate(String lineToParse) {
-        Date date = null;
-        try {
-            date = simpleDateFormat.parse(lineToParse);
-        } catch (ParseException e) {
-        }
-        return date;
-    }
-
-    private Event readEvent(String lineToParse) {
-        Event event = null;
-        if (lineToParse.contains("SOLVE_TASK")) {
-            event = Event.SOLVE_TASK;
-        } else if (lineToParse.contains("DONE_TASK")) {
-            event = Event.DONE_TASK;
-        } else {
-            switch (lineToParse) {
-                case "LOGIN": {
-                    event = Event.LOGIN;
-                    break;
-                }
-                case "DOWNLOAD_PLUGIN": {
-                    event = Event.DOWNLOAD_PLUGIN;
-                    break;
-                }
-                case "WRITE_MESSAGE": {
-                    event = Event.WRITE_MESSAGE;
-                    break;
-                }
-            }
-        }
-        return event;
-    }
-
-    private int readAdditionalParameter(String lineToParse) {
-        if (lineToParse.contains("SOLVE_TASK")) {
-            lineToParse = lineToParse.replace("SOLVE_TASK", "").replaceAll(" ", "");
-            return Integer.parseInt(lineToParse);
-        } else {
-            lineToParse = lineToParse.replace("DONE_TASK", "").replaceAll(" ", "");
-            return Integer.parseInt(lineToParse);
-        }
-    }
-
-    private Status readStatus(String lineToParse) {
-        Status status = null;
-        switch (lineToParse) {
-            case "OK": {
-                status = Status.OK;
-                break;
-            }
-            case "FAILED": {
-                status = Status.FAILED;
-                break;
-            }
-            case "ERROR": {
-                status = Status.ERROR;
-                break;
-            }
-        }
-        return status;
     }
 }

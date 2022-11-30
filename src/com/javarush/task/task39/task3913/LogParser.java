@@ -355,6 +355,8 @@ public class LogParser implements IPQuery, UserQuery, DateQuery {
         return result;
     }
 
+
+
     private void readLogs() {
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(logDir)) {
             for (Path file : directoryStream) {
