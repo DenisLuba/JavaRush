@@ -254,9 +254,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
 
     @Override
     public int getNumberOfAllEvents(Date after, Date before) {
-        return (int) logs.stream()
-                .filter(log -> isRelevantDate(log.date, after, before))
-                .count();
+        return getAllEvents(after, before).size();
     }
 
     @Override
@@ -325,13 +323,19 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     @Override
     public Map<Integer, Integer> getAllSolvedTasksAndTheirNumber(Date after, Date before) {
         return logs.stream()
-                .collect(Collectors.toMap(log -> log.taskNumber,
-                        log -> this.getNumberOfAttemptToSolveTask(log.taskNumber, after, before)));
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.taskNumber > 0)
+                .map(Log::getTaskNumber)
+                .distinct()
+                .collect(Collectors.toMap(task -> task,
+                        task -> this.getNumberOfAttemptToSolveTask(task, after, before)));
     }
 
     @Override
     public Map<Integer, Integer> getAllDoneTasksAndTheirNumber(Date after, Date before) {
         return logs.stream()
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.taskNumber > 0)
                 .map(Log::getTaskNumber)
                 .distinct()
                 .collect(Collectors.toMap(task -> task, task -> this.getNumberOfSuccessfulAttemptToSolveTask(task, after, before)));
@@ -364,7 +368,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
         if (before == null) {
             before = new Date(Long.MAX_VALUE);
         }
-        return current.after(after) && current.before(before);
+        return (current.after(after) || current.equals(after)) && (current.before(before) || current.equals(before));
     }
 
 //                               Inner class Log
