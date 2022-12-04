@@ -337,6 +337,8 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
                 .collect(Collectors.toMap(task -> task, task -> this.getNumberOfSuccessfulAttemptToSolveTask(task, after, before)));
     }
 
+//                               Auxiliary methods
+
 //    **************************************************************
 
     private static Stream<String> getLines(Path path) {
