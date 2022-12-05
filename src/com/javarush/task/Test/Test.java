@@ -10,11 +10,11 @@ public class Test {
     public static void main(String[] args) throws ParseException {
 
 
-        String str = "120.120.120.122 Amigo   29.2.2028 5:4:7 SOLVE_TASK 18   OK";
+        String[] split = "get ip for user = Amigo Sergeevich".split("=");
+        String attribute = split[1].trim();
+        String field_1 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$1");
+        String field_2 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$2");
 
-
-
-
-        System.out.println("*" + "STATUS 15".replaceAll("[^A-Z_]*", "") + "*");
+        System.out.println(attribute + "\n" + field_1 + "\n" + field_2);
     }
 }

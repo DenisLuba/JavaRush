@@ -1,9 +1,6 @@
 package com.javarush.task.task39.task3913;
 
-import com.javarush.task.task39.task3913.query.DateQuery;
-import com.javarush.task.task39.task3913.query.EventQuery;
-import com.javarush.task.task39.task3913.query.IPQuery;
-import com.javarush.task.task39.task3913.query.UserQuery;
+import com.javarush.task.task39.task3913.query.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
+public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQuery {
     private final Path logDirectory;
     private Set<Log> logs;
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d.M.yyyy H:m:s");
@@ -22,6 +19,70 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public MyLogParser(Path logDir) {
         this.logDirectory = logDir;
         readLogs();
+    }
+
+//                               QLQuery
+
+//    **************************************************************
+
+    @Override
+    public Set<Object> execute(String query) {
+        String[] split = query.split("=");
+        if (split.length == 1) {
+            return switch (query.toLowerCase().trim()) {
+                case "get ip" -> new HashSet<>(getUniqueIPs(null, null));
+                case "get user" -> new HashSet<>(getAllUsers());
+                case "get date" -> logs.stream()
+                        .map(Log::getDate)
+                        .collect(Collectors.toSet());
+                case "get event" -> new HashSet<>(getAllEvents(null, null));
+                case "get status" -> logs.stream()
+                        .map(Log::getStatus)
+                        .collect(Collectors.toSet());
+                default -> null;
+            };
+        } else if (split.length == 2) {
+            String attribute = split[1].trim();
+            String field_1 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$1");
+            String field_2 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$2");
+            return switch (field_1) {
+                case "ip" -> switch (field_2) {
+                    case "user" -> null;
+                    case "date" -> null;
+                    case "event" -> null;
+                    case "status" -> null;
+                    default -> null;
+                };
+                case "user" -> switch (field_2) {
+                    case "ip" -> null;
+                    case "date" -> null;
+                    case "event" -> null;
+                    case "status" -> null;
+                    default -> null;
+                };
+                case "date" -> switch (field_2) {
+                    case "ip" -> null;
+                    case "user" -> null;
+                    case "event" -> null;
+                    case "status" -> null;
+                    default -> null;
+                };
+                case "event" -> switch (field_2) {
+                    case "ip" -> null;
+                    case "user" -> null;
+                    case "date" -> null;
+                    case "status" -> null;
+                    default -> null;
+                };
+                case "status" -> switch (field_2) {
+                    case "ip" -> null;
+                    case "user" -> null;
+                    case "date" -> null;
+                    case "event" -> null;
+                    default -> null;
+                };
+            };
+        } else return null;
     }
 
 //                               IPQuery
@@ -37,14 +98,14 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public Set<String> getUniqueIPs(Date after, Date before) {
         return logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before))
-                .map(Log::getUser)
+                .map(Log::getIp)
                 .collect(Collectors.toSet());
     }
 
     @Override
     public Set<String> getIPsForUser(String user, Date after, Date before) {
         return logs.stream()
-                .filter(log -> isRelevantDate(log.date, after, before) && log.user.equals(user))
+                .filter(log -> isRelevantDate(log.date, after, before) && log.user.equalsIgnoreCase(user))
                 .map(Log::getIp)
                 .collect(Collectors.toSet());
     }
@@ -88,7 +149,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     @Override
     public int getNumberOfUserEvents(String user, Date after, Date before) {
         return logs.stream()
-                .filter(log -> log.user.equals(user) && isRelevantDate(log.date, after, before))
+                .filter(log -> log.user.equalsIgnoreCase(user) && isRelevantDate(log.date, after, before))
                 .map(Log::getUser)
                 .collect(Collectors.toSet()).size();
     }
@@ -96,7 +157,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     @Override
     public Set<String> getUsersForIP(String ip, Date after, Date before) {
         return logs.stream()
-                .filter(log -> log.ip.equals(ip) && isRelevantDate(log.date, after, before))
+                .filter(log -> log.ip.equalsIgnoreCase(ip) && isRelevantDate(log.date, after, before))
                 .map(Log::getUser)
                 .collect(Collectors.toSet());
     }
@@ -170,7 +231,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
         return logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before)
                         && log.event.equals(event)
-                        && log.user.equals(user))
+                        && log.user.equalsIgnoreCase(user))
                 .map(Log::getDate)
                 .collect(Collectors.toSet());
     }
@@ -197,7 +258,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public Date getDateWhenUserLoggedFirstTime(String user, Date after, Date before) {
         Optional<Date> date= logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before)
-                        && log.user.equals(user)
+                        && log.user.equalsIgnoreCase(user)
                         && log.event.equals(Event.LOGIN))
                 .map(Log::getDate)
                 .findFirst();
@@ -208,7 +269,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public Date getDateWhenUserSolvedTask(String user, int task, Date after, Date before) {
         Optional<Date> date = logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before)
-                        && log.user.equals(user)
+                        && log.user.equalsIgnoreCase(user)
                         && log.taskNumber == task
                         && log.event.equals(Event.SOLVE_TASK))
                 .map(Log::getDate)
@@ -220,7 +281,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public Date getDateWhenUserDoneTask(String user, int task, Date after, Date before) {
         Optional<Date> date = logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before)
-                        && log.user.equals(user)
+                        && log.user.equalsIgnoreCase(user)
                         && log.taskNumber == task
                         && log.event.equals(Event.DONE_TASK))
                 .map(Log::getDate)
@@ -232,7 +293,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public Set<Date> getDatesWhenUserWroteMessage(String user, Date after, Date before) {
         return logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before)
-                        && log.user.equals(user)
+                        && log.user.equalsIgnoreCase(user)
                         && log.event.equals(Event.WRITE_MESSAGE))
                 .map(Log::getDate)
                 .collect(Collectors.toSet());
@@ -242,7 +303,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public Set<Date> getDatesWhenUserDownloadedPlugin(String user, Date after, Date before) {
         return logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before)
-                        && log.user.equals(user)
+                        && log.user.equalsIgnoreCase(user)
                         && log.event.equals(Event.DOWNLOAD_PLUGIN))
                 .map(Log::getDate)
                 .collect(Collectors.toSet());
@@ -269,7 +330,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public Set<Event> getEventsForIP(String ip, Date after, Date before) {
         return logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before)
-                        && log.ip.equals(ip))
+                        && log.ip.equalsIgnoreCase(ip))
                 .map(Log::getEvent)
                 .collect(Collectors.toSet());
     }
@@ -278,7 +339,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public Set<Event> getEventsForUser(String user, Date after, Date before) {
         return logs.stream()
                 .filter(log -> isRelevantDate(log.date, after, before)
-                        && log.user.equals(user))
+                        && log.user.equalsIgnoreCase(user))
                 .map(Log::getEvent)
                 .collect(Collectors.toSet());
     }

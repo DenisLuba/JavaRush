@@ -1,9 +1,6 @@
 package com.javarush.task.task39.task3913;
 
-import com.javarush.task.task39.task3913.query.DateQuery;
-import com.javarush.task.task39.task3913.query.EventQuery;
-import com.javarush.task.task39.task3913.query.IPQuery;
-import com.javarush.task.task39.task3913.query.UserQuery;
+import com.javarush.task.task39.task3913.query.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,8 +12,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
+public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQuery {
     private Path logDir;
     private List<LogEntity> logEntities = new ArrayList<>();
     private DateFormat simpleDateFormat = new SimpleDateFormat("d.M.yyyy H:m:s");
@@ -24,6 +22,22 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     public LogParser(Path logDir) {
         this.logDir = logDir;
         readLogs();
+    }
+
+    @Override
+    public Set<Object> execute(String query) {
+        switch(query.toLowerCase().trim()) {
+            case "get ip": return new HashSet<>(getUniqueIPs(null, null));
+            case "get user": return new HashSet<>(getAllUsers());
+            case "get date": return logEntities.stream()
+                    .map(log -> log.date)
+                    .collect(Collectors.toSet());
+            case "get event": return new HashSet<>(getAllEvents(null, null));
+            case "get status": return logEntities.stream()
+                    .map(log -> log.status)
+                    .collect(Collectors.toSet());
+            default: return null;
+        }
     }
 
     @Override
