@@ -45,7 +45,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
 //____________________________________________________________________
 
         } else if (split.length == 2) {
-            String attribute = split[1].trim();
+            String attribute = split[1].replaceAll("\"", "").trim();
             String field_1 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$1");
             String field_2 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$2");
             return switch (field_1) {
@@ -53,7 +53,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
                     case "user" -> new HashSet<>(getIPsForUser(attribute, null, null));
                     case "date" -> logs.stream()
                             .filter(log -> equalsDate(attribute, log.date))
-                            .map(Log::getDate)
+                            .map(Log::getIp)
                             .collect(Collectors.toSet());
                     case "event" -> new HashSet<>(getIPsForEvent(Event.valueOf(attribute), null, null));
                     case "status" -> new HashSet<>(getIPsForStatus(Status.valueOf(attribute), null, null));
@@ -130,6 +130,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
                             .collect(Collectors.toSet());
                     default -> null;
                 };
+                default -> null;
             };
         } else return null;
     }

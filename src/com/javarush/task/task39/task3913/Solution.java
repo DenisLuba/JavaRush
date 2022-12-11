@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class Solution {
     public static void main(String[] args) throws ParseException {
-        MyLogParser logParser = new MyLogParser(Paths.get("C:\\Users\\support\\IdeaProjects\\JavaRush\\src\\com\\javarush\\task\\task39\\task3913\\logs\\"));
+        MyLogParser logParser = new MyLogParser(Paths.get("C:\\Users\\user\\IdeaProjects\\JavaRush\\src\\com\\javarush\\task\\task39\\task3913\\logs\\"));
         Date after = new SimpleDateFormat("d.M.yyyy H:m:s").parse("30.01.2014 12:56:22");
         Date before = new SimpleDateFormat("d.M.yyyy H:m:s").parse("19.03.2016 00:00:00");
 
@@ -40,5 +40,12 @@ public class Solution {
         System.out.println("**************************************");
         logParser.execute("get status").forEach(System.out::println);
         System.out.println("**************************************");
-        logParser.execute("get tatus").forEach(System.out::println);    }
+//        logParser.execute("get tatus").forEach(System.out::println);
+
+        logParser.execute("get ip for user = \"Vasya Pupkin\"").forEach(System.out::println);
+        System.out.println("**************************************");
+        logParser.execute("get event for date = \"30.01.2014 12:56:22\"").forEach(System.out::println);
+        System.out.println("**************************************");
+        logParser.execute("get ip for date = \"30.01.2014 12:56:22\"").forEach(System.out::println);
+    }
 }
