@@ -27,16 +27,17 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
 
     @Override
     public Set<Object> execute(String query) {
-        String[] split = query.split("=");
-        if (split.length == 1) {
-            return switch (query.toLowerCase().trim()) {
-                case "get ip" -> new HashSet<>(getUniqueIPs(null, null));
-                case "get user" -> new HashSet<>(getAllUsers());
-                case "get date" -> logs.stream()
+        String[] parameters = getFields(query);
+
+        if (parameters.length == 1) {
+            return switch (parameters[0].trim()) {
+                case "ip" -> new HashSet<>(getUniqueIPs(null, null));
+                case "user" -> new HashSet<>(getAllUsers());
+                case "date" -> logs.stream()
                         .map(Log::getDate)
                         .collect(Collectors.toSet());
-                case "get event" -> new HashSet<>(getAllEvents(null, null));
-                case "get status" -> logs.stream()
+                case "event" -> new HashSet<>(getAllEvents(null, null));
+                case "status" -> logs.stream()
                         .map(Log::getStatus)
                         .collect(Collectors.toSet());
                 default -> null;
@@ -44,95 +45,114 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
 
 //____________________________________________________________________
 
-        } else if (split.length == 2) {
-            String attribute = split[1].replaceAll("\"", "").trim();
-            String field_1 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$1");
-            String field_2 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$2");
-            return switch (field_1) {
-                case "ip" -> switch (field_2) {
-                    case "user" -> new HashSet<>(getIPsForUser(attribute, null, null));
+        } else {
+            Date after, before;
+            if (parameters.length == 5) {
+                after = getDateFromString(parameters[3]);
+                before = getDateFromString(parameters[4]);
+            } else {
+                before = null;
+                after = null;
+            }
+            return switch (parameters[0]) {
+                case "ip" -> switch (parameters[1]) {
+                    case "user" -> new HashSet<>(getIPsForUser(parameters[2], after, before));
                     case "date" -> logs.stream()
-                            .filter(log -> equalsDate(attribute, log.date))
+                            .filter(log -> equalsDate(parameters[2], log.date)
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getIp)
                             .collect(Collectors.toSet());
-                    case "event" -> new HashSet<>(getIPsForEvent(Event.valueOf(attribute), null, null));
-                    case "status" -> new HashSet<>(getIPsForStatus(Status.valueOf(attribute), null, null));
+                    case "event" -> new HashSet<>(getIPsForEvent(Event.valueOf(parameters[2].toUpperCase()), after, before));
+                    case "status" -> new HashSet<>(getIPsForStatus(Status.valueOf(parameters[2].toUpperCase()), after, before));
                     default -> null;
                 };
 
-                case "user" -> switch (field_2) {
-                    case "ip" -> new HashSet<>(getUsersForIP(attribute, null, null));
+                case "user" -> switch (parameters[1]) {
+                    case "ip" -> new HashSet<>(getUsersForIP(parameters[2], after, before));
                     case "date" -> logs.stream()
-                            .filter(log -> equalsDate(attribute, log.date))
+                            .filter(log -> equalsDate(parameters[2], log.date)
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getUser)
                             .collect(Collectors.toSet());
                     case "event" -> logs.stream()
-                            .filter(log -> log.event.equals(Event.valueOf(attribute.toUpperCase())))
+                            .filter(log -> log.event.equals(Event.valueOf(parameters[2].toUpperCase()))
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getUser)
                             .collect(Collectors.toSet());
                     case "status" -> logs.stream()
-                            .filter(log -> log.status.equals(Status.valueOf(attribute.toUpperCase())))
+                            .filter(log -> log.status.equals(Status.valueOf(parameters[2].toUpperCase()))
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getUser)
                             .collect(Collectors.toSet());
                     default -> null;
                 };
 
-                case "date" -> switch (field_2) {
+                case "date" -> switch (parameters[1]) {
                     case "ip" -> logs.stream()
-                            .filter(log -> log.ip.equals(attribute))
+                            .filter(log -> log.ip.equals(parameters[2])
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getDate)
                             .collect(Collectors.toSet());
                     case "user" -> logs.stream()
-                            .filter(log -> log.user.equalsIgnoreCase(attribute))
+                            .filter(log -> log.user.equalsIgnoreCase(parameters[2])
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getDate)
                             .collect(Collectors.toSet());
                     case "event" -> logs.stream()
-                            .filter(log -> log.event.equals(Event.valueOf(attribute.toUpperCase())))
+                            .filter(log -> log.event.equals(Event.valueOf(parameters[2].toUpperCase()))
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getDate)
                             .collect(Collectors.toSet());
                     case "status" -> logs.stream()
-                            .filter(log -> log.status.equals(Status.valueOf(attribute.toUpperCase())))
+                            .filter(log -> log.status.equals(Status.valueOf(parameters[2].toUpperCase()))
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getDate)
                             .collect(Collectors.toSet());
                     default -> null;
                 };
 
-                case "event" -> switch (field_2) {
-                    case "ip" -> new HashSet<>(getEventsForIP(attribute, null, null));
-                    case "user" -> new HashSet<>(getEventsForUser(attribute, null, null));
+                case "event" -> switch (parameters[1]) {
+                    case "ip" -> new HashSet<>(getEventsForIP(parameters[2], after, before));
+                    case "user" -> new HashSet<>(getEventsForUser(parameters[2], after, before));
                     case "date" -> logs.stream()
-                            .filter(log -> equalsDate(attribute, log.date))
+                            .filter(log -> equalsDate(parameters[2], log.date)
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getEvent)
                             .collect(Collectors.toSet());
                     case "status" -> logs.stream()
-                            .filter(log -> log.status.equals(Status.valueOf(attribute)))
+                            .filter(log -> log.status.equals(Status.valueOf(parameters[2].toUpperCase()))
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getEvent)
                             .collect(Collectors.toSet());
                     default -> null;
                 };
 
-                case "status" -> switch (field_2) {
+                case "status" -> switch (parameters[1]) {
                     case "ip" -> logs.stream()
-                            .filter(log -> log.ip.equals(attribute))
+                            .filter(log -> log.ip.equals(parameters[2])
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getStatus)
                             .collect(Collectors.toSet());
                     case "user" -> logs.stream()
-                            .filter(log -> log.user.equalsIgnoreCase(attribute))
+                            .filter(log -> log.user.equalsIgnoreCase(parameters[2])
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getStatus)
                             .collect(Collectors.toSet());
                     case "date" -> logs.stream()
-                            .filter(log -> equalsDate(attribute, log.date))
+                            .filter(log -> equalsDate(parameters[2], log.date)
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getStatus)
                             .collect(Collectors.toSet());
                     case "event" -> logs.stream()
-                            .filter(log -> log.event.equals(Event.valueOf(attribute)))
+                            .filter(log -> log.event.equals(Event.valueOf(parameters[2].toUpperCase()))
+                                    && isRelevantDate(log.date, after, before))
                             .map(Log::getStatus)
                             .collect(Collectors.toSet());
                     default -> null;
                 };
                 default -> null;
             };
-        } else return null;
+        }
     }
 
 //                               IPQuery
@@ -155,7 +175,8 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
     @Override
     public Set<String> getIPsForUser(String user, Date after, Date before) {
         return logs.stream()
-                .filter(log -> isRelevantDate(log.date, after, before) && log.user.equalsIgnoreCase(user))
+                .filter(log -> isRelevantDate(log.date, after, before)
+                        && log.user.equalsIgnoreCase(user))
                 .map(Log::getIp)
                 .collect(Collectors.toSet());
     }
@@ -472,6 +493,14 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
         } catch (IOException ignore) {}
     }
 
+    private static Date getDateFromString(String string) {
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(string);
+        } catch (ParseException ignore) {}
+        return date;
+    }
+
     private boolean isRelevantDate(Date current, Date after, Date before) {
         if (after == null) {
             after = new Date(0);
@@ -487,6 +516,54 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
             return simpleDateFormat.parse(stringDate).equals(dateStandard);
         } catch(ParseException ignore) {}
         return false;
+    }
+
+    private static String[] getFields(String expression) {
+        String[] array;
+        expression = expression.toLowerCase();
+
+        if (!expression.contains("=")) {
+            array = new String[1];
+            array[0] = expression
+                    .replaceFirst("get ", "")
+                    .trim();
+        } else if (!expression.contains("and date between")){
+            array = new String[3];
+            String pattern = "get (\\S+) for (\\S+) = (.+)";
+            array[0] = expression
+                    .replaceFirst(pattern, "$1")
+                    .trim();
+            array[1] = expression
+                    .replaceFirst(pattern, "$2")
+                    .trim();
+            array[2] = expression
+                    .replaceFirst(pattern, "$3")
+                    .replaceAll("\"", "")
+                    .trim();
+        } else {
+            array = new String[5];
+            String pattern = "get (\\S+) for (\\S+) = (.+) and date between (.+) and (.+)";
+            array[0] = expression
+                    .replaceFirst(pattern, "$1")
+                    .trim();
+            array[1] = expression
+                    .replaceFirst(pattern, "$2")
+                    .trim();
+            array[2] = expression
+                    .replaceFirst(pattern, "$3")
+                    .replaceAll("\"", "")
+                    .trim();
+            array[3] = expression
+                    .replaceFirst(pattern, "$4")
+                    .replaceAll("\"", "")
+                    .trim();
+            array[4] = expression
+                    .replaceFirst(pattern, "$5")
+                    .replaceAll("\"", "")
+                    .trim();
+        }
+
+        return array;
     }
 
 //                               Inner class Log
@@ -509,7 +586,7 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
 
             ip = parameters[0];
             user = parameters[1];
-            setDateFromString(parameters[2]);
+            date = getDateFromString(parameters[2]);
             setEventAndTaskFromString(parameters[3]);
             status = Status.valueOf(parameters[4]);
         }
@@ -534,12 +611,6 @@ public class MyLogParser implements IPQuery, UserQuery, DateQuery, EventQuery, Q
         }
 
 //        -------------------------------------------------------------
-
-        private void setDateFromString(String string) {
-            try {
-                date = simpleDateFormat.parse(string);
-            } catch (ParseException ignore) {}
-        }
 
         private void setEventAndTaskFromString(String string) {
             event = Event.valueOf(string.replaceAll("[^A-Z_]+", "").trim());

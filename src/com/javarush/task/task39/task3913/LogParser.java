@@ -26,16 +26,16 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
 
     @Override
     public Set<Object> execute(String query) {
-        String[] split = query.split("=");
-        if (split.length == 1) {
-            switch(query.toLowerCase().trim()) {
-                case "get ip": return new HashSet<>(getUniqueIPs(null, null));
-                case "get user": return new HashSet<>(getAllUsers());
-                case "get date": return logEntities.stream()
+        String[] parameters = getFields(query);
+        if (parameters.length == 1) {
+            switch(parameters[0].toLowerCase().trim()) {
+                case "ip": return new HashSet<>(getUniqueIPs(null, null));
+                case "user": return new HashSet<>(getAllUsers());
+                case "date": return logEntities.stream()
                         .map(log -> log.date)
                         .collect(Collectors.toSet());
-                case "get event": return new HashSet<>(getAllEvents(null, null));
-                case "get status": return logEntities.stream()
+                case "event": return new HashSet<>(getAllEvents(null, null));
+                case "status": return logEntities.stream()
                         .map(log -> log.status)
                         .collect(Collectors.toSet());
                 default: return null;
@@ -43,100 +43,201 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
 
 //____________________________________________________________________
 
-        } else if (split.length == 2) {
-            String attribute = split[1].replaceAll("\"", "").trim();
-            String field_1 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$1");
-            String field_2 = split[0].trim().toLowerCase().replaceFirst("get (\\S+) for (\\S+)", "$2");
-            switch (field_1) {
+        } else {
+            Date after, before;
+            if (parameters.length == 5) {
+                after = getDateFromString(parameters[3]);
+                before = getDateFromString(parameters[4]);
+            } else {
+                before = null;
+                after = null;
+            }
+
+            switch (parameters[0]) {
                 case "ip":
-                    switch (field_2) {
-                        case "user": return new HashSet<>(getIPsForUser(attribute, null, null));
-                        case "date": return logEntities.stream()
-                                .filter(log -> equalsDate(attribute, log.date))
-                                .map(LogEntity::getIp)
-                                .collect(Collectors.toSet());
-                        case "event": return new HashSet<>(getIPsForEvent(Event.valueOf(attribute), null, null));
-                        case "status": return new HashSet<>(getIPsForStatus(Status.valueOf(attribute), null, null));
-                        default: return null;
+                    switch (parameters[1]) {
+                        case "user":
+                            return new HashSet<>(getIPsForUser(parameters[2], after, before));
+                        case "date":
+                            return logEntities.stream()
+                                    .filter(log -> equalsDate(parameters[2], log.date)
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getIp)
+                                    .collect(Collectors.toSet());
+                        case "event":
+                            return new HashSet<>(getIPsForEvent(Event.valueOf(parameters[2]), after, before));
+                        case "status":
+                            return new HashSet<>(getIPsForStatus(Status.valueOf(parameters[2]), after, before));
+                        default:
+                            return null;
                     }
 
                 case "user":
-                    switch (field_2) {
-                        case "ip": return new HashSet<>(getUsersForIP(attribute, null, null));
-                        case "date": return logEntities.stream()
-                                .filter(log -> equalsDate(attribute, log.date))
-                                .map(LogEntity::getUser)
-                                .collect(Collectors.toSet());
-                        case "event": return logEntities.stream()
-                                .filter(log -> log.event.equals(Event.valueOf(attribute.toUpperCase())))
-                                .map(LogEntity::getUser)
-                                .collect(Collectors.toSet());
-                        case "status": return logEntities.stream()
-                                .filter(log -> log.status.equals(Status.valueOf(attribute.toUpperCase())))
-                                .map(LogEntity::getUser)
-                                .collect(Collectors.toSet());
-                        default: return null;
+                    switch (parameters[1]) {
+                        case "ip":
+                            return new HashSet<>(getUsersForIP(parameters[2], after, before));
+                        case "date":
+                            return logEntities.stream()
+                                    .filter(log -> equalsDate(parameters[2], log.date)
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getUser)
+                                    .collect(Collectors.toSet());
+                        case "event":
+                            return logEntities.stream()
+                                    .filter(log -> log.event.equals(Event.valueOf(parameters[2].toUpperCase()))
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getUser)
+                                    .collect(Collectors.toSet());
+                        case "status":
+                            return logEntities.stream()
+                                    .filter(log -> log.status.equals(Status.valueOf(parameters[2].toUpperCase()))
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getUser)
+                                    .collect(Collectors.toSet());
+                        default:
+                            return null;
                     }
 
                 case "date":
-                    switch (field_2) {
-                        case "ip": return logEntities.stream()
-                                .filter(log -> log.ip.equals(attribute))
-                                .map(LogEntity::getDate)
-                                .collect(Collectors.toSet());
-                        case "user": return logEntities.stream()
-                                .filter(log -> log.user.equalsIgnoreCase(attribute))
-                                .map(LogEntity::getDate)
-                                .collect(Collectors.toSet());
-                        case "event": return logEntities.stream()
-                                .filter(log -> log.event.equals(Event.valueOf(attribute.toUpperCase())))
-                                .map(LogEntity::getDate)
-                                .collect(Collectors.toSet());
-                        case "status": return logEntities.stream()
-                                .filter(log -> log.status.equals(Status.valueOf(attribute.toUpperCase())))
-                                .map(LogEntity::getDate)
-                                .collect(Collectors.toSet());
-                        default: return null;
+                    switch (parameters[1]) {
+                        case "ip":
+                            return logEntities.stream()
+                                    .filter(log -> log.ip.equals(parameters[2])
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getDate)
+                                    .collect(Collectors.toSet());
+                        case "user":
+                            return logEntities.stream()
+                                    .filter(log -> log.user.equalsIgnoreCase(parameters[2])
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getDate)
+                                    .collect(Collectors.toSet());
+                        case "event":
+                            return logEntities.stream()
+                                    .filter(log -> log.event.equals(Event.valueOf(parameters[2].toUpperCase()))
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getDate)
+                                    .collect(Collectors.toSet());
+                        case "status":
+                            return logEntities.stream()
+                                    .filter(log -> log.status.equals(Status.valueOf(parameters[2].toUpperCase()))
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getDate)
+                                    .collect(Collectors.toSet());
+                        default:
+                            return null;
                     }
 
                 case "event":
-                    switch (field_2) {
-                        case "ip": return new HashSet<>(getEventsForIP(attribute, null, null));
-                        case "user": return new HashSet<>(getEventsForUser(attribute, null, null));
-                        case "date": return logEntities.stream()
-                                .filter(log -> equalsDate(attribute, log.date))
-                                .map(LogEntity::getEvent)
-                                .collect(Collectors.toSet());
-                        case "status": return logEntities.stream()
-                                .filter(log -> log.status.equals(Status.valueOf(attribute)))
-                                .map(LogEntity::getEvent)
-                                .collect(Collectors.toSet());
-                        default: return null;
+                    switch (parameters[1]) {
+                        case "ip":
+                            return new HashSet<>(getEventsForIP(parameters[2], after, before));
+                        case "user":
+                            return new HashSet<>(getEventsForUser(parameters[2], after, before));
+                        case "date":
+                            return logEntities.stream()
+                                    .filter(log -> equalsDate(parameters[2], log.date)
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getEvent)
+                                    .collect(Collectors.toSet());
+                        case "status":
+                            return logEntities.stream()
+                                    .filter(log -> log.status.equals(Status.valueOf(parameters[2].toUpperCase()))
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getEvent)
+                                    .collect(Collectors.toSet());
+                        default:
+                            return null;
                     }
 
                 case "status":
-                    switch (field_2) {
-                        case "ip": return logEntities.stream()
-                                .filter(log -> log.ip.equals(attribute))
-                                .map(LogEntity::getStatus)
-                                .collect(Collectors.toSet());
-                        case "user": return logEntities.stream()
-                                .filter(log -> log.user.equalsIgnoreCase(attribute))
-                                .map(LogEntity::getStatus)
-                                .collect(Collectors.toSet());
-                        case "date": return logEntities.stream()
-                                .filter(log -> equalsDate(attribute, log.date))
-                                .map(LogEntity::getStatus)
-                                .collect(Collectors.toSet());
-                        case "event": return logEntities.stream()
-                                .filter(log -> log.event.equals(Event.valueOf(attribute)))
-                                .map(LogEntity::getStatus)
-                                .collect(Collectors.toSet());
-                        default: return null;
+                    switch (parameters[1]) {
+                        case "ip":
+                            return logEntities.stream()
+                                    .filter(log -> log.ip.equals(parameters[2])
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getStatus)
+                                    .collect(Collectors.toSet());
+                        case "user":
+                            return logEntities.stream()
+                                    .filter(log -> log.user.equalsIgnoreCase(parameters[2])
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getStatus)
+                                    .collect(Collectors.toSet());
+                        case "date":
+                            return logEntities.stream()
+                                    .filter(log -> equalsDate(parameters[2], log.date)
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getStatus)
+                                    .collect(Collectors.toSet());
+                        case "event":
+                            return logEntities.stream()
+                                    .filter(log -> log.event.equals(Event.valueOf(parameters[2].toUpperCase()))
+                                            && dateBetweenDates(log.date, after, before))
+                                    .map(LogEntity::getStatus)
+                                    .collect(Collectors.toSet());
+                        default:
+                            return null;
                     }
-                default: return null;
+                default:
+                    return null;
             }
-        } else return null;
+        }
+    }
+
+    private Date getDateFromString(String string) {
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(string);
+        } catch (ParseException ignore) {}
+        return date;
+    }
+
+    private static String[] getFields(String expression) {
+        String[] array;
+
+        if (!expression.contains("=")) {
+            array = new String[1];
+            array[0] = expression
+                    .replaceFirst("get ", "")
+                    .trim();
+        } else if (!expression.contains("and date between")){
+            array = new String[3];
+            String pattern = "get (\\S+) for (\\S+) = (.+)";
+            array[0] = expression
+                    .replaceFirst(pattern, "$1")
+                    .trim();
+            array[1] = expression
+                    .replaceFirst(pattern, "$2")
+                    .trim();
+            array[2] = expression
+                    .replaceFirst(pattern, "$3")
+                    .replaceAll("\"", "")
+                    .trim();
+        } else {
+            array = new String[5];
+            String pattern = "get (\\S+) for (\\S+) = (.+) and date between (.+) and (.+)";
+            array[0] = expression
+                    .replaceFirst(pattern, "$1")
+                    .trim();
+            array[1] = expression
+                    .replaceFirst(pattern, "$2")
+                    .trim();
+            array[2] = expression
+                    .replaceFirst(pattern, "$3")
+                    .replaceAll("\"", "")
+                    .trim();
+            array[3] = expression
+                    .replaceFirst(pattern, "$4")
+                    .replaceAll("\"", "")
+                    .trim();
+            array[4] = expression
+                    .replaceFirst(pattern, "$5")
+                    .replaceAll("\"", "")
+                    .trim();
+        }
+
+        return array;
     }
 
     private boolean equalsDate(String stringDate, Date dateStandard) {
