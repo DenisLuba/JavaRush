@@ -1,4 +1,4 @@
-package com.javarush.task.Test;
+package JUnitTest;
 
 import java.util.*;
 

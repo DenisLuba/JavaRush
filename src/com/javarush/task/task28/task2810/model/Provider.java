@@ -14,7 +14,7 @@ public class Provider {
 
     // this method is a method "execute"
     public List<Vacancy> getJavaVacancies(String searchString) {
-        return null;
+        return strategy.getVacancies(searchString);
     }
 
     public void setStrategy(Strategy strategy) {

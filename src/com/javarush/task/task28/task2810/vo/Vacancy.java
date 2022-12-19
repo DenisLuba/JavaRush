@@ -8,7 +8,7 @@ public class Vacancy {
             siteName,
             url;
 
-    public String getTitle() {
+public String getTitle() {
         return title;
     }
 

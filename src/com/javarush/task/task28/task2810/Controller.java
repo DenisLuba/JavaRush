@@ -3,6 +3,7 @@ package com.javarush.task.task28.task2810;
 import com.javarush.task.task28.task2810.model.Provider;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class Controller {
     private Provider[] providers;
@@ -18,5 +19,9 @@ public class Controller {
         return "Controller{" +
                 "providers=" + Arrays.toString(providers) +
                 '}';
+    }
+
+    public void scan() {
+        Stream.of(providers).flatMap(provider -> provider.getJavaVacancies())
     }
 }
