@@ -20,6 +20,6 @@
     <orderEntry type="library" name="google.guava" level="project" />
     <orderEntry type="library" name="guicedee.services.commons.collections4" level="project" />
     <orderEntry type="library" name="junit" level="project" />
-    <orderEntry type="library" name="jsoup" level="project" />
+    <orderEntry type="library" name="jsoup1" level="project" />
   </component>
 </module>
