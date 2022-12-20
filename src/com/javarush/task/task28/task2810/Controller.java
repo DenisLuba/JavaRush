@@ -3,6 +3,10 @@ package com.javarush.task.task28.task2810;
 import com.javarush.task.task28.task2810.model.Provider;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Controller {
@@ -22,6 +26,14 @@ public class Controller {
     }
 
     public void scan() {
-        Stream.of(providers).flatMap(provider -> provider.getJavaVacancies())
+            try {
+                System.out.println(Stream.of(providers)
+                        .map(provider -> provider.getJavaVacancies(""))
+                        .mapToLong(Collection::size)
+                        .sum());
+            } catch (NullPointerException e) {
+                System.out.println(0);
+            }
+
     }
 }

@@ -7,17 +7,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="fasterxml.jackson.core1" level="project" />
-    <orderEntry type="library" name="fasterxml.jackson.core.annotations1" level="project" />
-    <orderEntry type="library" name="fasterxml.jackson.core.databind1" level="project" />
-    <orderEntry type="library" name="glassfish.jaxb.runtime1" level="project" />
-    <orderEntry type="library" name="glassfish.jaxb.txw21" level="project" />
-    <orderEntry type="library" name="guicedee.services.jakarta.activation1" level="project" />
-    <orderEntry type="library" name="guicedee.services.jakarta.xml.bind.api1" level="project" />
-    <orderEntry type="library" name="jsoup1" level="project" />
-    <orderEntry type="library" name="junit1" level="project" />
-    <orderEntry type="library" name="powermock.core1" level="project" />
-    <orderEntry type="library" name="slf4j.log4j131" level="project" />
-    <orderEntry type="library" name="sun.istack.commons.runtime1" level="project" />
+    <orderEntry type="library" name="sun.istack.commons.runtime" level="project" />
+    <orderEntry type="library" name="fasterxml.jackson.core.databind" level="project" />
+    <orderEntry type="library" name="slf4j.api" level="project" />
+    <orderEntry type="library" name="guicedee.services.jakarta.activation" level="project" />
+    <orderEntry type="library" name="glassfish.jaxb.txw2" level="project" />
+    <orderEntry type="library" name="guicedee.services.jakarta.xml.bind.api" level="project" />
+    <orderEntry type="library" name="fasterxml.jackson.core.annotations" level="project" />
+    <orderEntry type="library" name="powermock.core" level="project" />
+    <orderEntry type="library" name="glassfish.jaxb.runtime" level="project" />
+    <orderEntry type="library" name="fasterxml.jackson.core" level="project" />
+    <orderEntry type="library" name="google.guava" level="project" />
+    <orderEntry type="library" name="guicedee.services.commons.collections4" level="project" />
+    <orderEntry type="library" name="junit" level="project" />
+    <orderEntry type="library" name="jsoup" level="project" />
   </component>
 </module>
