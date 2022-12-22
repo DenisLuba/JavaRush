@@ -1,7 +1,9 @@
 package com.javarush.task.task28.task2810.model;
 
 import com.javarush.task.task28.task2810.vo.Vacancy;
+import org.jsoup.Jsoup;
 
+import java.io.IOException;
 import java.util.List;
 
 public class HHStrategy implements Strategy {
@@ -9,6 +11,11 @@ public class HHStrategy implements Strategy {
 
     @Override
     public List<Vacancy> getVacancies(String searchString) {
+        try {
+            Jsoup.connect(String.format(URL_FORMAT, "NewYork", 1)).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }
