@@ -10,6 +10,9 @@ fun main() {
     println(numberToString(123))
     println(abbrevName("P Favuzzi"))
     calculateYears(10).forEach {i -> print("$i ")}
+    println()
+    println(getAscii('A'))
+    println(sum(listOf(1, "2", "3", 4, "c")))
 }
 
 fun sum(numbers: IntArray) : Int = numbers.filter{i -> i > 0}.sum()
@@ -24,3 +27,7 @@ fun calculateYears(years: Int): Array<Int> = when(years) {
     1 -> arrayOf(1, 15, 15)
     else -> arrayOf(years, 24 + (years - 2) * 4, 24 + (years - 2) * 5)
 }
+
+fun getAscii(c: Char): Int = c.code
+
+fun sum(mixed: List<Any>): Int = mixed.sumOf { it.toString().toInt() }
