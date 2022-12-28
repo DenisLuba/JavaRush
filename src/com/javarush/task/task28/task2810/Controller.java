@@ -1,39 +1,16 @@
 package com.javarush.task.task28.task2810;
 
-import com.javarush.task.task28.task2810.model.Provider;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.javarush.task.task28.task2810.model.Model;
 
 public class Controller {
-    private Provider[] providers;
+    private final Model model;
 
-    public Controller(Provider... providers) throws IllegalArgumentException {
-        if (providers == null || providers.length == 0)
-            throw new IllegalArgumentException();
-        this.providers = providers;
+    public Controller(Model model) {
+        if (model == null) throw new IllegalArgumentException();
+        this.model = model;
     }
 
-    @Override
-    public String toString() {
-        return "Controller{" +
-                "providers=" + Arrays.toString(providers) +
-                '}';
-    }
-
-    public void scan() {
-            try {
-                System.out.println(Stream.of(providers)
-                        .map(provider -> provider.getJavaVacancies(""))
-                        .mapToLong(Collection::size)
-                        .sum());
-            } catch (NullPointerException e) {
-                System.out.println(0);
-            }
-
+    public void onCitySelect(String cityName) {
+        model.selectCity(cityName);
     }
 }
