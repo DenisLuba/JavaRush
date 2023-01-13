@@ -4,6 +4,13 @@ import java.util.*
 
 class Kata {
     companion object {
+
+        fun replace(s: String): String = s.map {ch -> when (ch) {
+            'a', 'e', 'i', 'o', 'u' -> '!'
+            else -> ch
+        } }.toString()
+        fun noSpace(x: String): String = x.replace(" ", "")
+
         fun sum(numbers: IntArray): Int = numbers.filter { i -> i > 0 }.sum()
 
         fun repeatStr(r: Int, str: String): String = str.repeat(r)
@@ -25,6 +32,10 @@ class Kata {
         fun expressionsMatter(a: Int, b: Int, c: Int): Int =
             intArrayOf(a, b, c).fold(0) { i, j -> if (i <= 1 || j == 1) i + j else i * j }
                 .coerceAtLeast(intArrayOf(a, b, c).foldRight(0) { i, j -> if (i <= 1 || j <= 1) i + j else i * j })
+
+        fun doubleInteger(i: Int): Int = 2 * i
+
+        fun makeUpperCase(str: String): String = str.uppercase()
     }
     fun main() {
         val numbers: IntArray = intArrayOf(1, -1, 2, -2, 3)

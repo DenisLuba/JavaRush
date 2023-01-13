@@ -4,6 +4,24 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class KataTest {
+
+    @Test
+    fun checkNoSpace() {
+        assertEquals("8j8mBliB8gimjB8B8jlB", Kata.noSpace("8 j 8   mBliB8g imjB8B8 jl B"))
+        assertEquals("8aaaaaddddr", Kata.noSpace("8aaaaa dddd r      "))
+        assertEquals("88Bifk8h", Kata.noSpace("8 8     Bi  fk8h"))
+    }
+
+    @Test
+    fun checkMakeUpperCase() {
+        assertEquals("HELLO", Kata.makeUpperCase("hello"))
+    }
+
+    @Test
+    fun checkDoubleInteger() {
+        assertEquals(4, Kata.doubleInteger(2), "Nope!")
+    }
+
     @Test
     fun checkSmallValues() {
         assertEquals(6, Kata.expressionsMatter(2, 1, 2))
