@@ -1,20 +1,27 @@
 package Test;
 
 import java.io.*;
-import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Solution {
 
     public static void main(String[] args) {
-        try(Scanner scanner = new Scanner(System.in)) {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 1; scanner.hasNext(); i++)
-                stringBuilder.append(i)
-                        .append(" ")
-                        .append(scanner.nextLine())
-                        .append("\n");
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+            String A = reader.readLine();
+            String B = reader.readLine();
 
-            System.out.println(stringBuilder);
-        }
+            String string = Stream.of(A, B)
+                    .map(s -> Pattern.compile("^.")
+                            .matcher(s)
+                            .replaceFirst(m -> m.group()
+                                    .toUpperCase()))
+                    .collect(Collectors.joining(" "));
+
+            System.out.printf("%d\n%s\n%s",
+                    A.length() + B.length(), A.compareTo(B) > 0 ? "Yes" : "No",
+                    string);
+        } catch (IOException ignore) {}
     }
 }
