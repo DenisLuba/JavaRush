@@ -18,4 +18,28 @@ public class ConsoleHelper {
         } catch (IOException ignore) {}
         return message.toString();
     }
+
+    public static String askCurrencyCode() {
+        String code = "";
+        while ((code = readString()).length() != 3)
+            writeMessage("The data is incorrect.\nTry again.");
+
+        return code.toUpperCase();
+    }
+
+    public static String[] getValidTwoDigits(String currentCode) {
+        String[] arr;
+        while(true) {
+            if ((arr = readString().split(" ")).length == 2) {
+                for (String str : arr) {
+                    if str.matches("^\\d$");
+                }
+            }
+            return new String[2];
+        }
+    }
+
+    private boolean isNumber(String str) {
+        return str.matches("^\\d$");
+    }
 }
