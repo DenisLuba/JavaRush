@@ -11,7 +11,6 @@ public class CashMachine {
         int denomination = Integer.parseInt(digits[0]);
         int count = Integer.parseInt(digits[1]);
         manipulator.addAmount(denomination, count);
-
-        System.out.println(manipulator.equals(CurrencyManipulatorFactory.getManipulatorByCurrencyCode("usD")));
+        System.out.println(manipulator.getTotalAmount());
     }
 }
