@@ -3,6 +3,7 @@ package com.javarush.task.task26.task2613;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class ConsoleHelper {
 
@@ -20,6 +21,7 @@ public class ConsoleHelper {
     }
 
     public static String askCurrencyCode() {
+        writeMessage("Enter the currency code:");
         String code = "";
         while ((code = readString()).length() != 3)
             writeMessage("The data is incorrect.\nTry again.");
@@ -28,18 +30,15 @@ public class ConsoleHelper {
     }
 
     public static String[] getValidTwoDigits(String currentCode) {
-        String[] arr;
-        while(true) {
-            if ((arr = readString().split(" ")).length == 2) {
-                for (String str : arr) {
-                    if str.matches("^\\d$");
-                }
-            }
-            return new String[2];
-        }
-    }
+        writeMessage("Enter the denomination and number of banknotes:");
+        String[] digits;
+        while((digits = Arrays
+                .stream(readString().trim().split("\\s+"))
+                .filter(string -> string.matches("^\\d+$"))
+                .toArray(String[]::new)).length != 2) {
 
-    private boolean isNumber(String str) {
-        return str.matches("^\\d$");
+            writeMessage("The data is incorrect.\nTry again.");
+        }
+        return digits;
     }
 }

@@ -16,5 +16,10 @@ public class CurrencyManipulator {
         denominations = new TreeMap<>();
     }
 
-
+    public void addAmount(int denomination, int count) {
+        denominations.put(denomination,
+                denominations.get(denomination) != null ?
+                        denominations.get(denomination) + count :
+                        count);
+    }
 }
