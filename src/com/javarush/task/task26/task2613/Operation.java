@@ -4,5 +4,10 @@ public enum Operation {
     INFO,
     DEPOSIT,
     WITHDRAW,
-    EXIT
+    EXIT;
+
+    public static Operation getAllowableOperationByOrdinal(Integer i) throws IllegalArgumentException {
+        if (i > 0 && i <= Operation.values().length) return Operation.values()[--i];
+        throw new IllegalArgumentException();
+    }
 }
