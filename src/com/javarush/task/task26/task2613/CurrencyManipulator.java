@@ -5,15 +5,15 @@ import java.util.TreeMap;
 
 public class CurrencyManipulator {
     private final String currencyCode;
-    private Map<Integer, Integer> denominations;
-
-    public String getCurrencyCode() {
-        return currencyCode;
-    }
+    private final Map<Integer, Integer> denominations;
 
     public CurrencyManipulator(String currencyCode) {
         this.currencyCode = currencyCode;
         denominations = new TreeMap<>();
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode;
     }
 
     public void addAmount(int denomination, int count) {
@@ -25,5 +25,9 @@ public class CurrencyManipulator {
 
     public int getTotalAmount() {
         return denominations.entrySet().stream().mapToInt(pair -> pair.getKey() * pair.getValue()).sum();
+    }
+
+    public boolean hasMoney() {
+        return getTotalAmount() > 0;
     }
 }

@@ -1,5 +1,7 @@
 package Test;
 
+import org.junit.Test;
+
 import java.io.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,5 +25,21 @@ public class Solution {
                     A.length() + B.length(), A.compareTo(B) > 0 ? "Yes" : "No",
                     string);
         } catch (IOException ignore) {}
+    }
+
+    public static String getSmallestAndLargest(String s, int k) {
+        String smallest = "";
+        String largest = "";
+
+        // Complete the function
+        // 'smallest' must be lexicographically the smallest substring of length 'k'
+        // 'largest' must be lexicographically the largest substring of length 'k'
+
+        return smallest + "\n" + largest;
+    }
+
+    @Test
+    public void testGetSmallestAndLargest() {
+
     }
 }
