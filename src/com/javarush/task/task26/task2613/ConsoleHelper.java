@@ -1,5 +1,7 @@
 package com.javarush.task.task26.task2613;
 
+import com.javarush.task.task26.task2613.exception.InterruptOperationException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,16 +18,17 @@ public class ConsoleHelper {
     }
 
 //    reading a message from the console
-    public static String readString() {
+    public static String readString() throws InterruptOperationException {
         StringBuilder message = new StringBuilder();
         try {
             message.append(bis.readLine());
+            if (message.toString().equalsIgnoreCase("EXIT")) throw new InterruptOperationException();
         } catch (IOException ignore) {}
         return message.toString();
     }
 
 //    asks for the currency code and returns it in uppercase
-    public static String askCurrencyCode() {
+    public static String askCurrencyCode() throws InterruptOperationException {
         writeMessage("Enter the currency code:");
         String code = "";
         while ((code = readString()).length() != 3)
@@ -35,7 +38,7 @@ public class ConsoleHelper {
     }
 
 //    asks for the denomination and number of banknotes and returns an array of these values
-    public static String[] getValidTwoDigits(String currentCode) {
+    public static String[] getValidTwoDigits(String currentCode) throws InterruptOperationException {
         writeMessage("Enter the denomination and number of banknotes:");
         String[] digits;
         while((digits = Arrays
@@ -49,7 +52,7 @@ public class ConsoleHelper {
     }
 
 //    asks for the number of the operation and returns the operation
-    public static Operation askOperation() {
+    public static Operation askOperation() throws InterruptOperationException {
         writeMessage("Enter the number of the operation:");
         String message = IntStream.range(0, Operation.values().length)
                 .boxed()
@@ -61,7 +64,7 @@ public class ConsoleHelper {
     }
 
 //   helps the method adkOperation()
-    private static Operation getOperation(String message) {
+    private static Operation getOperation(String message) throws InterruptOperationException {
         String enteredText;
         while (true) {
             if ((enteredText = readString()).matches("^\\d$")) {
@@ -72,9 +75,5 @@ public class ConsoleHelper {
             writeMessage("The data is incorrect.\nTry again.");
             writeMessage(message);
         }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(askOperation());
     }
 }
