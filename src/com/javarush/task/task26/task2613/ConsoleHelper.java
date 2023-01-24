@@ -54,9 +54,9 @@ public class ConsoleHelper {
 //    asks for the number of the operation and returns the operation
     public static Operation askOperation() throws InterruptOperationException {
         writeMessage("Enter the number of the operation:");
-        String message = IntStream.range(0, Operation.values().length)
+        String message = IntStream.range(1, Operation.values().length)
                 .boxed()
-                .map(i -> String.format("%d - %s", i + 1, Operation.values()[i]))
+                .map(i -> String.format("%d - %s", i, Operation.values()[i]))
                 .collect(Collectors.joining("\n"));
         writeMessage(message);
 

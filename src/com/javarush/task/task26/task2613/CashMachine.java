@@ -7,16 +7,15 @@ import java.util.Locale;
 
 public class CashMachine {
     public static void main(String[] args) {
-        Operation operation = null;
-
-        do {
-            try {
+        Operation operation;
+        try{
+            CommandExecutor.execute(Operation.LOGIN);
+            do {
                 operation = ConsoleHelper.askOperation();
                 CommandExecutor.execute(operation);
-            } catch(InterruptOperationException e) {
-                operation = Operation.EXIT;
-                ConsoleHelper.writeMessage("Goodbye!");
-            }
-        } while (operation != Operation.EXIT);
+            } while (operation != Operation.EXIT);
+        } catch(InterruptOperationException e) {
+            ConsoleHelper.writeMessage("Goodbye!");
+        }
     }
 }
