@@ -3,9 +3,10 @@ package com.javarush.task.task26.task2613;
 import com.javarush.task.task26.task2613.command.CommandExecutor;
 import com.javarush.task.task26.task2613.exception.InterruptOperationException;
 
-import java.util.Locale;
-
 public class CashMachine {
+
+    public static final String RESOURCE_PATH = CashMachine.class.getPackageName() + ".resources.";
+
     public static void main(String[] args) {
         Operation operation;
         try{
@@ -15,7 +16,7 @@ public class CashMachine {
                 CommandExecutor.execute(operation);
             } while (operation != Operation.EXIT);
         } catch(InterruptOperationException e) {
-            ConsoleHelper.writeMessage("Goodbye!");
+            ConsoleHelper.printExitMessage();
         }
     }
 }

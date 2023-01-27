@@ -1,5 +1,6 @@
 package com.javarush.task.task26.task2613.command;
 
+import com.javarush.task.task26.task2613.CashMachine;
 import com.javarush.task.task26.task2613.ConsoleHelper;
 import com.javarush.task.task26.task2613.CurrencyManipulator;
 import com.javarush.task.task26.task2613.CurrencyManipulatorFactory;
@@ -10,7 +11,7 @@ import java.util.ResourceBundle;
 
 class WithdrawCommand implements Command {
 
-    private final ResourceBundle res = ResourceBundle.getBundle(pathToResources + "withdraw_en");
+    private final ResourceBundle res = ResourceBundle.getBundle(CashMachine.RESOURCE_PATH + "withdraw_en");
 
     @Override
     public void execute() throws InterruptOperationException {
@@ -21,7 +22,7 @@ class WithdrawCommand implements Command {
         while (true) {
             ConsoleHelper.writeMessage(res.getString("specify.amount"));
             if (!(amount = ConsoleHelper.readString().trim()).matches("^\\d+$")) {
-                ConsoleHelper.writeMessage(res.getString("specify.amount"));
+                ConsoleHelper.writeMessage(res.getString("data.incorrect"));
                 continue;
             }
             if (manipulator.isAmountAvailable(Integer.parseInt(amount))) {
@@ -34,10 +35,12 @@ class WithdrawCommand implements Command {
                                                     key * value, code)));
                     return;
                 } catch(NotEnoughMoneyException e) {
-                    ConsoleHelper.writeMessage(res.getString("not.enough.money"));
+                    ConsoleHelper.writeMessage(res.getString("exact.amount.not.available"));
+                    return;
                 }
-                ConsoleHelper.writeMessage(res.getString("specify.not.empty.amount"));
             }
+            ConsoleHelper.writeMessage(res.getString("exact.amount.not.available"));
+            return;
         }
     }
 }

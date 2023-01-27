@@ -1,13 +1,14 @@
 package com.javarush.task.task26.task2613.command;
 
+import com.javarush.task.task26.task2613.CashMachine;
 import com.javarush.task.task26.task2613.ConsoleHelper;
 import com.javarush.task.task26.task2613.exception.InterruptOperationException;
 
 import java.util.ResourceBundle;
 
 public class LoginCommand implements Command {
-    private final ResourceBundle validCreditCards = ResourceBundle.getBundle(pathToResources + "verifiedCards");
-    private final ResourceBundle res = ResourceBundle.getBundle(pathToResources + "login_en");
+    private final ResourceBundle validCreditCards = ResourceBundle.getBundle(CashMachine.RESOURCE_PATH + "verifiedCards");
+    private final ResourceBundle res = ResourceBundle.getBundle(CashMachine.RESOURCE_PATH + "login_en");
     @Override
     public void execute() throws InterruptOperationException {
         ConsoleHelper.writeMessage(res.getString("before"));

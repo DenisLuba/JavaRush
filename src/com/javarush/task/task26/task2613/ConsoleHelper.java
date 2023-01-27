@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 
 public class ConsoleHelper {
 
-    private final static ResourceBundle res = ResourceBundle.getBundle(CashMachine.class.getPackage().getName() + ".resource.common_en");
+    private final static ResourceBundle res = ResourceBundle.getBundle(CashMachine.RESOURCE_PATH + "common_en");
 
 //    writing a message to the console
     private static final BufferedReader bis = new BufferedReader(new InputStreamReader(System.in));
@@ -26,7 +26,6 @@ public class ConsoleHelper {
         try {
             message.append(bis.readLine());
             if (message.toString().equalsIgnoreCase("EXIT")) {
-                ConsoleHelper.writeMessage(res.getString("the.end"));
                 throw new InterruptOperationException();
             }
         } catch (IOException ignore) {}
@@ -81,5 +80,9 @@ public class ConsoleHelper {
             writeMessage(res.getString("invalid.data"));
             writeMessage(message);
         }
+    }
+
+    public static void printExitMessage() {
+        ConsoleHelper.writeMessage(res.getString("the.end"));
     }
 }
