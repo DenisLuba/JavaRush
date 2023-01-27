@@ -5,6 +5,10 @@ import java.util.*
 class Kata {
     companion object {
 
+        fun people(busStops: Array<Pair<Int, Int>>) = busStops.sumOf { pair -> pair.first - pair.second }
+
+        fun greet(name: String): String = "Hello, $name how are you doing today?"
+
         fun replace(s: String): String = s.map {ch -> when (ch) {
             'a', 'e', 'i', 'o', 'u' -> '!'
             else -> ch

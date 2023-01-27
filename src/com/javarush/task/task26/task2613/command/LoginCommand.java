@@ -1,33 +1,31 @@
 package com.javarush.task.task26.task2613.command;
 
-import com.javarush.task.task26.task2613.CashMachine;
 import com.javarush.task.task26.task2613.ConsoleHelper;
 import com.javarush.task.task26.task2613.exception.InterruptOperationException;
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class LoginCommand implements Command {
-    private String pathToResources = CashMachine.class.getPackage().getName() +".resources.";
-    private String pathToResourceVerifiedCards = pathToResources + "verifiedCards";
-    private String pathToResourceLogin = pathToResources + "login_en";
-    private ResourceBundle validCreditCards = ResourceBundle.getBundle(pathToResourceVerifiedCards, Locale.US);
-    private ResourceBundle res = ResourceBundle.getBundle(pathToResourceLogin, Locale.US);
+    private final ResourceBundle validCreditCards = ResourceBundle.getBundle(pathToResources + "verifiedCards");
+    private final ResourceBundle res = ResourceBundle.getBundle(pathToResources + "login_en");
     @Override
     public void execute() throws InterruptOperationException {
         ConsoleHelper.writeMessage(res.getString("before"));
         while(true) {
-            ConsoleHelper.writeMessage(res.getString("specify.data"));
+            ConsoleHelper.writeMessage(res.getString("specify.card.number"));
             String number = ConsoleHelper.readString();
+            ConsoleHelper.writeMessage(res.getString("specify.card.code"));
             String pin = ConsoleHelper.readString();
             if (validCreditCards.containsKey(number) &&
                     validCreditCards.getString(number).equals(pin)) {
                 String success = String.format(res.getString("success.format"), number);
                 ConsoleHelper.writeMessage(success);
-                break;
+                return;
             }
-            ConsoleHelper.writeMessage("The data is incorrect. Try again.");
+            String failure = String.format(res.getString("not.verified.format"), number);
+            ConsoleHelper.writeMessage(failure);
+            ConsoleHelper.writeMessage(res.getString("try.again.with.details"));
+            ConsoleHelper.writeMessage(res.getString("try.again.or.exit"));
         }
-        ConsoleHelper.writeMessage("The data is valid.");
     }
 }

@@ -6,6 +6,13 @@ import kotlin.test.assertEquals
 class KataTest {
 
     @Test
+    fun checkPeople() {
+        assertEquals(17, Kata.people(arrayOf(3 to 0,9 to 1,4 to 10,12 to 2,6 to 1,7 to 10)))
+        assertEquals(21, Kata.people(arrayOf(3 to 0,9 to 1,4 to 8,12 to 2,6 to 1,7 to 8)))
+        assertEquals(5, Kata.people(arrayOf(10 to 0,3 to 5,5 to 8)))
+    }
+
+    @Test
     fun checkNoSpace() {
         assertEquals("8j8mBliB8gimjB8B8jlB", Kata.noSpace("8 j 8   mBliB8g imjB8B8 jl B"))
         assertEquals("8aaaaaddddr", Kata.noSpace("8aaaaa dddd r      "))

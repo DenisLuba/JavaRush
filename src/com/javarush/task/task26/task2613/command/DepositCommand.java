@@ -1,6 +1,5 @@
 package com.javarush.task.task26.task2613.command;
 
-import com.javarush.task.task26.task2613.CashMachine;
 import com.javarush.task.task26.task2613.ConsoleHelper;
 import com.javarush.task.task26.task2613.CurrencyManipulator;
 import com.javarush.task.task26.task2613.CurrencyManipulatorFactory;
@@ -11,8 +10,7 @@ import java.util.ResourceBundle;
 
 class DepositCommand implements Command {
 
-    private final String pathToResources = CashMachine.class.getPackage().getName() + ".resources.deposit_en";
-    private ResourceBundle res = ResourceBundle.getBundle(pathToResources);
+    private final ResourceBundle res = ResourceBundle.getBundle(pathToResources + "deposit_en");
     @Override
     public void execute() throws InterruptOperationException {
         Locale.setDefault(Locale.ENGLISH);

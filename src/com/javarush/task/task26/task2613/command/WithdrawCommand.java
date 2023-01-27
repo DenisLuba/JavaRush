@@ -6,33 +6,37 @@ import com.javarush.task.task26.task2613.CurrencyManipulatorFactory;
 import com.javarush.task.task26.task2613.exception.InterruptOperationException;
 import com.javarush.task.task26.task2613.exception.NotEnoughMoneyException;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.ResourceBundle;
 
 class WithdrawCommand implements Command {
+
+    private final ResourceBundle res = ResourceBundle.getBundle(pathToResources + "withdraw_en");
+
     @Override
     public void execute() throws InterruptOperationException {
         String code = ConsoleHelper.askCurrencyCode();
         CurrencyManipulator manipulator = CurrencyManipulatorFactory.getManipulatorByCurrencyCode(code);
 
-        String amount = "";
+        String amount;
         while (true) {
-            ConsoleHelper.writeMessage("Enter the amount:");
-            if (!(amount = ConsoleHelper.readString()).matches("^\\d+$")) {
-                ConsoleHelper.writeMessage("The data is incorrect. Try again.");
+            ConsoleHelper.writeMessage(res.getString("specify.amount"));
+            if (!(amount = ConsoleHelper.readString().trim()).matches("^\\d+$")) {
+                ConsoleHelper.writeMessage(res.getString("specify.amount"));
                 continue;
             }
             if (manipulator.isAmountAvailable(Integer.parseInt(amount))) {
                 try {
                     manipulator
                             .withdrawAmount(Integer.parseInt(amount))
-                            .forEach((key, value) -> System.out.printf("\t%d - %d\n", key, value));
-                    break;
+                            .forEach((key, value) -> ConsoleHelper
+                                    .writeMessage(String
+                                            .format(res.getString("before") + '\n' + res.getString("success.format"),
+                                                    key * value, code)));
+                    return;
                 } catch(NotEnoughMoneyException e) {
-                    ConsoleHelper.writeMessage("You don't have enough money.");
+                    ConsoleHelper.writeMessage(res.getString("not.enough.money"));
                 }
+                ConsoleHelper.writeMessage(res.getString("specify.not.empty.amount"));
             }
         }
     }

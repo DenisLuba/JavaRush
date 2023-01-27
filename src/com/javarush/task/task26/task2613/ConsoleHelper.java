@@ -6,13 +6,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ConsoleHelper {
 
+    private final static ResourceBundle res = ResourceBundle.getBundle(CashMachine.class.getPackage().getName() + ".resource.common_en");
+
 //    writing a message to the console
-    private static BufferedReader bis = new BufferedReader(new InputStreamReader(System.in));
+    private static final BufferedReader bis = new BufferedReader(new InputStreamReader(System.in));
     public static void writeMessage(String message) {
         System.out.println(message);
     }
@@ -22,38 +25,41 @@ public class ConsoleHelper {
         StringBuilder message = new StringBuilder();
         try {
             message.append(bis.readLine());
-            if (message.toString().equalsIgnoreCase("EXIT")) throw new InterruptOperationException();
+            if (message.toString().equalsIgnoreCase("EXIT")) {
+                ConsoleHelper.writeMessage(res.getString("the.end"));
+                throw new InterruptOperationException();
+            }
         } catch (IOException ignore) {}
         return message.toString();
     }
 
 //    asks for the currency code and returns it in uppercase
     public static String askCurrencyCode() throws InterruptOperationException {
-        writeMessage("Enter the currency code:");
-        String code = "";
+        writeMessage(res.getString("choose.currency.code"));
+        String code;
         while ((code = readString()).length() != 3)
-            writeMessage("The data is incorrect.\nTry again.");
+            writeMessage(res.getString("invalid.data"));
 
         return code.toUpperCase();
     }
 
 //    asks for the denomination and number of banknotes and returns an array of these values
     public static String[] getValidTwoDigits(String currentCode) throws InterruptOperationException {
-        writeMessage("Enter the denomination and number of banknotes:");
+        writeMessage(String.format(res.getString("choose.denomination.and.count.format"), currentCode));
         String[] digits;
         while((digits = Arrays
                 .stream(readString().trim().split("\\s+"))
                 .filter(string -> string.matches("^\\d+$"))
                 .toArray(String[]::new)).length != 2) {
 
-            writeMessage("The data is incorrect.\nTry again.");
+            writeMessage(res.getString("invalid.data"));
         }
         return digits;
     }
 
 //    asks for the number of the operation and returns the operation
     public static Operation askOperation() throws InterruptOperationException {
-        writeMessage("Enter the number of the operation:");
+        writeMessage(res.getString("choose.operation"));
         String message = IntStream.range(1, Operation.values().length)
                 .boxed()
                 .map(i -> String.format("%d - %s", i, Operation.values()[i]))
@@ -72,7 +78,7 @@ public class ConsoleHelper {
                 if (operationNumber <= Operation.values().length && operationNumber > 0)
                     return Operation.getAllowableOperationByOrdinal(operationNumber);
             }
-            writeMessage("The data is incorrect.\nTry again.");
+            writeMessage(res.getString("invalid.data"));
             writeMessage(message);
         }
     }
