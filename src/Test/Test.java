@@ -1,15 +1,11 @@
 package Test;
 
-import java.util.*;
-import java.text.*;
+import java.io.File;
 
 public class Test {
+    String path = new File(this.getClass().getPackage().toString()).toString();
     public static void main(String[] args) {
-        Map<Integer, String> map = new HashMap<>();
-
-
-        int r = 45;
-        r -= 5 * 3;
-        System.out.println(r);
+        Test test = new Test();
+        System.out.println(test.path);
     }
 }

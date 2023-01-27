@@ -1,24 +1,26 @@
 package com.javarush.task.task26.task2613.command;
 
+import com.javarush.task.task26.task2613.CashMachine;
 import com.javarush.task.task26.task2613.ConsoleHelper;
 import com.javarush.task.task26.task2613.exception.InterruptOperationException;
 
-public class LoginCommand implements Command{
+import java.util.Locale;
+import java.util.ResourceBundle;
 
-    private final String CARD_NUMBER = "123456789012";
-    private final String PIN_CODE = "1234";
+public class LoginCommand implements Command {
+    private String pathToResources = CashMachine.class.getPackage().getName() + ".resources.verifiedCards";
+
+    private ResourceBundle validCreditCards = ResourceBundle.getBundle(pathToResources, Locale.US);
 
     @Override
     public void execute() throws InterruptOperationException {
-        String pin = "";
-        String number = "";
-
         while(true) {
             ConsoleHelper.writeMessage("Please, enter the card number:");
-            number = ConsoleHelper.readString();
+            String number = ConsoleHelper.readString();
             ConsoleHelper.writeMessage("Please, enter the pin code:");
-            pin = ConsoleHelper.readString();
-            if (number.equals(CARD_NUMBER) && pin.equals(PIN_CODE)) break;
+            String pin = ConsoleHelper.readString();
+            if (validCreditCards.containsKey(number) &&
+                    validCreditCards.getString(number).equals(pin)) break;
             ConsoleHelper.writeMessage("The data is incorrect. Try again.");
         }
         ConsoleHelper.writeMessage("The data is valid.");
