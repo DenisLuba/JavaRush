@@ -1,6 +1,6 @@
 package com.javarush.task.task40.task4004;
 
-import java.awt.*;
+import java.awt.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +27,9 @@ public class Solution {
     }
 
     public static boolean isPointInPolygon(Point point, List<Point> polygon) {
-
+        Polygon shape = new Polygon();
+        for (Point dot : polygon)
+            shape.addPoint(dot.x, dot.y);
+        return shape.contains(point.x, point.y);
     }
 }
