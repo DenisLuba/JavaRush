@@ -24,5 +24,6 @@
     <orderEntry type="library" name="jetbrains.kotlin.test" level="project" />
     <orderEntry type="library" name="slf4j" level="project" />
     <orderEntry type="library" name="apache.httpcomponents.httpclient" level="project" />
+    <orderEntry type="library" name="sun.mail.javax" level="project" />
   </component>
 </module>
