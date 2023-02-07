@@ -4,12 +4,15 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalField;
+import java.time.temporal.WeekFields;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class Solution {
     public static void main(String[] args) {
-        printDate("21.4.2014 15:56:45");
+        printDate("9.10.2017 5:56:45");
         System.out.println();
         printDate("21.4.2014");
         System.out.println();
@@ -20,12 +23,12 @@ public class Solution {
         String[] strings = date.trim().split(" ");
 
         if (strings[0].contains(".")) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy");
             LocalDate localDate = LocalDate.parse(strings[0].trim(), formatter);
             printDateParameters(localDate);
         }
         if (strings[strings.length - 1].contains(":")) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:m:s");
             LocalTime localTime = LocalTime.parse(strings[strings.length - 1].trim(), formatter);
             printTimeParameters(localTime);
         }
@@ -33,20 +36,20 @@ public class Solution {
 
     private static void printDateParameters(LocalDate localDate) {
         System.out.println("День: " + localDate.getDayOfMonth() + "\n" +
-                "День недели: " + localDate.getDayOfWeek() + "\n" +
+                "День недели: " + localDate.getDayOfWeek().getValue() + "\n" +
                 "День месяца: " + localDate.getDayOfMonth() + "\n" +
                 "День года: " + localDate.getDayOfYear() + "\n" +
-                "Неделя месяца: " + localDate.get(TemporalField.) + "\n" +
-                "Неделя года: " + localDate.get(Calendar.WEEK_OF_YEAR) + "\n" +
-                "Месяц: " + (localDate.get(Calendar.MONTH) + 1) + "\n" +
-                "Год: " + localDate.get(Calendar.YEAR));
+                "Неделя месяца: " + localDate.get(WeekFields.of(Locale.getDefault()).weekOfMonth()) + "\n" +
+                "Неделя года: " + localDate.get(WeekFields.of(Locale.getDefault()).weekOfYear()) + "\n" +
+                "Месяц: " + localDate.getMonth().getValue() + "\n" +
+                "Год: " + localDate.getYear());
     }
 
     private static void printTimeParameters(LocalTime localTime) {
-        System.out.println("AM или PM: " + (localTime.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM") + "\n" +
-                "Часы: " + localTime.get(Calendar.HOUR) + "\n" +
-                "Часы дня: " + localTime.get(Calendar.HOUR_OF_DAY) + "\n" +
-                "Минуты: " + localTime.get(Calendar.MINUTE) + "\n" +
-                "Секунды: " + localTime.get(Calendar.SECOND));
+        System.out.println("AM или PM: " + (localTime.get(ChronoField.AMPM_OF_DAY) == 0 ? "AM" : "PM") + "\n" +
+                "Часы: " + localTime.get(ChronoField.HOUR_OF_AMPM) + "\n" +
+                "Часы дня: " + localTime.getHour() + "\n" +
+                "Минуты: " + localTime.getMinute() + "\n" +
+                "Секунды: " + localTime.getSecond());
     }
 }
