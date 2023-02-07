@@ -13,14 +13,14 @@ import java.util.stream.Collectors;
 public class Test {
     String path = new File(this.getClass().getPackage().toString()).toString();
     public static void main(String[] args) throws MalformedURLException {
-        String line = "https://javarush.com/quests/lectures/questcollections.level10.lecture07";
-        URL url = new URL(line);
-        System.out.println(url.getPath());
-        System.out.println(url.getFile());
-        System.out.println(url.getHost());
-        System.out.println(url.getPort());
-        System.out.println(url.getDefaultPort());
-        System.out.println(url.getProtocol());
-        System.out.println(url.getUserInfo());
+        String date = "21.4.2014 15:56:45";
+        String formatDate = "\\d{1,2}.\\d{1,2}.\\d{4}";
+        String formatTime = "\\d{1,2}:\\d{1,2}:\\d{1,2}";
+        String pattern = "";
+        pattern += date.matches(formatDate) ? "d.M.YYYY " : "";
+        pattern += date.matches(formatTime) ? "H:m:s" : "";
+        pattern = date.matches(formatDate + " " + formatTime) ? "d.M.YYYY H:m:s" : "";
+        pattern = pattern.trim();
+        System.out.println(pattern);
     }
 }
