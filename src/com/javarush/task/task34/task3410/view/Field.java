@@ -13,5 +13,6 @@ public class Field extends JPanel {
 
     @Override
     public void paint(Graphics g) {
+
     }
 }
