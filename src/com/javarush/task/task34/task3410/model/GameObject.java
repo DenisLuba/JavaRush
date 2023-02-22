@@ -1,5 +1,7 @@
 package com.javarush.task.task34.task3410.model;
 
+import com.javarush.task.task34.task3410.model.Model;
+
 import java.awt.Graphics;
 
 public abstract class GameObject {
