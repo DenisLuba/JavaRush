@@ -30,4 +30,8 @@ public class Model {
     public void startNextLevel() {
         restartLevel(++currentLevel);
     }
+
+    public void move(Direction direction) {
+
+    }
 }
