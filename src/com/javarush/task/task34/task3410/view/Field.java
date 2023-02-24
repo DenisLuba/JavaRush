@@ -2,13 +2,11 @@ package com.javarush.task.task34.task3410.view;
 
 import com.javarush.task.task34.task3410.controller.EventListener;
 import com.javarush.task.task34.task3410.model.Direction;
-import com.javarush.task.task34.task3410.model.GameObject;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.stream.Stream;
 
 public class Field extends JPanel {
 

@@ -4,14 +4,13 @@ import com.javarush.task.task34.task3410.controller.EventListener;
 
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Model {
     public static final int FIELD_CELL_SIZE = 20;
     private EventListener eventListener;
     private GameObjects gameObjects;
     private int currentLevel = 1;
-    private final LevelLoader levelLoader = new LevelLoader(Paths.get("res.levels.txt"));
+    private final LevelLoader levelLoader = new LevelLoader(Paths.get("/res.levels.txt"));
 
     public void setEventListener(EventListener eventListener) {
         this.eventListener = eventListener;
@@ -85,11 +84,11 @@ public class Model {
         int objectX = object.getX();
         int objectY = object.getY();
 
-        switch(direction) {
-            case LEFT: objectX -= FIELD_CELL_SIZE; break;
-            case RIGHT: objectX += FIELD_CELL_SIZE; break;
-            case UP: objectY -= FIELD_CELL_SIZE; break;
-            case DOWN: objectY += FIELD_CELL_SIZE;
+        switch (direction) {
+            case LEFT -> objectX -= FIELD_CELL_SIZE;
+            case RIGHT -> objectX += FIELD_CELL_SIZE;
+            case UP -> objectY -= FIELD_CELL_SIZE;
+            case DOWN -> objectY += FIELD_CELL_SIZE;
         }
 
         return new int[]{objectX, objectY};
@@ -111,7 +110,7 @@ public class Model {
                 .filter(object ->
                         object.getX() == x &&
                                 object.getY() == y)
-                .collect(Collectors.toList());
+                .toList();
 
         return objects.isEmpty() ? null : objects.get(0);
     }
@@ -119,7 +118,6 @@ public class Model {
 //    вспомогательный метод для метода checkBoxCollisionAndMoveIfAvailable(Direction direction)
 //    если на пути у игрока коробка, то он проверяет, может ли ее подвинуть, и, по возможности, двигает
     private boolean ifNextObjectIsBox(Box box, Direction direction) {
-        Player player = gameObjects.getPlayer();
 
         int purposeX = box.getX();
         int purposeY = box.getY();

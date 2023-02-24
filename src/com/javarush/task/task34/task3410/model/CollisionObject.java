@@ -11,12 +11,11 @@ public abstract class CollisionObject extends GameObject {
     public boolean isCollision(GameObject gameObject, Direction direction) {
         int gameObjectX = gameObject.getX();
         int gameObjectY = gameObject.getY();
-        switch (direction) {
-            case LEFT: return  gameObjectX == x - FIELD_CELL_SIZE && gameObjectY == y;
-            case RIGHT: return  gameObjectX == x + FIELD_CELL_SIZE && gameObjectY == y;
-            case UP: return  gameObjectX == x && gameObjectY == y - FIELD_CELL_SIZE;
-            case DOWN: return gameObjectX == x && gameObjectY == y + FIELD_CELL_SIZE;
-        }
-        return false;
+        return switch (direction) {
+            case LEFT -> gameObjectX == x - FIELD_CELL_SIZE && gameObjectY == y;
+            case RIGHT -> gameObjectX == x + FIELD_CELL_SIZE && gameObjectY == y;
+            case UP -> gameObjectX == x && gameObjectY == y - FIELD_CELL_SIZE;
+            case DOWN -> gameObjectX == x && gameObjectY == y + FIELD_CELL_SIZE;
+        };
     }
 }
