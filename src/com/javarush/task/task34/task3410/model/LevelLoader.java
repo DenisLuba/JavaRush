@@ -1,37 +1,68 @@
 package com.javarush.task.task34.task3410.model;
 
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * 16.1. Открой файл levels.txt и внимательно изучи структуру файла. Символ 'X' - означает стену, '*' - ящик, '.' - дом, '&' - ящик который стоит в доме, а '@' - игрока. Всего в файле 60 уровней.
- * 16.2. Реализуй метод GameObjects getLevel(int level). Он должен:
- * 16.2.1. Вычитывать из файла данные уровня level. Уровни должны повторяться циклически, если пользователь прошел все 60 уровней и попал на 61 уровень, то ему нужно вернуть 1, вместо 62 уровня вернуть 2 и т.д.
- * 16.2.2. Создать все игровые объекты, описанные в указанном уровне. Координаты каждого игрового объекта должны быть рассчитаны согласно следующей логике:
- * 16.2.2.1. Самый верхний левый объект (если такой есть) должен иметь координаты x = x0 = FIELD_CELL_SIZE / 2 и y = y0 = FIELD_CELL_SIZE / 2.
- * 16.2.2.2. Объект, который находится на одну позицию правее от него должен иметь координаты x = x0 + FIELD_CELL_SIZE и y = y0.
- * 16.2.2.3. Объект, который находится на одну позицию ниже от самого верхнего левого должен иметь координаты x = x0 и y = y0 + FIELD_CELL_SIZE.
- * 16.2.2.4. Аналогично должны рассчитываться координаты любого объекта на поле.
- * 16.2.3. Создать новое хранилище объектов GameObjects и поместить в него все объекты.
- * 16.2.4. Вернуть созданное хранилище.
- *
- * Игра должна быть полностью рабочей. Проверь, если есть какие-то проблемы исправь их.
- */
-
 public class LevelLoader {
     private Path levels;
+
+    private int width = 500;
+    private int height = 500;
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 
     public LevelLoader(Path levels) {
         this.levels = levels;
     }
 
     public GameObjects getLevel(int level) {
-        Player player = new Player(250, 250);
-        Set<Home> homes = Stream.of(new Home(10, 10)).collect(Collectors.toSet());
-        Set<Box> boxes = Stream.of(new Box(250, 270)).collect(Collectors.toSet());
-        Set<Wall> walls = Stream.of(new Wall(10, 30), new Wall(20, 30), new Wall(250, 290)).collect(Collectors.toSet());
+
+        String[] levelsFile = new String[0];
+        try (Stream<String> fileStream = Files.lines(levels)){
+            levelsFile = fileStream.collect(Collectors.joining("/")).split("\\*{20,}"); // объединяем все строки из файла в одну, затем делим ее на строки по границам мз звездочек
+        } catch (IOException ignore) {}
+
+        String levelString = Arrays.stream(levelsFile).filter(line -> line.matches(".*Maze: " + level + "/.*")).collect(Collectors.joining()); // находим строку с нужным уровнем
+        String[] strings = levelString.replaceFirst("(.+)(//)(.+)(//)", "$3").split("/"); // выделяем из нее массив строк из элементов для заполнения поля игры
+        char[][] chars = Arrays.stream(strings).map(String::toCharArray).toArray(char[][]::new); // превращаем массив строк в двойной массив символов
+
+        width = Integer.parseInt(levelString.replaceFirst("(.*)(Size X: )(\\d+)(.*)", "$3")); // находим в метаданных для уровня ширину игрового поля
+        height = Integer.parseInt(levelString.replaceFirst("(.*)(Size Y: )(\\d+)(.*)", "$3")); // и его высоту
+
+        return getGameObjectFromArrayOfCharacters(chars);
+    }
+
+//    вспомогательный метод для метода getLevel(int level),
+//    который из массива символов возвращает объект класса GameObjects,
+//    содержащий необходимые объекты для этого уровня
+    private GameObjects getGameObjectFromArrayOfCharacters(char[][] chars) {
+        Set<Wall> walls = new HashSet<>();
+        Set<Box> boxes = new HashSet<>();
+        Set<Home> homes = new HashSet<>();
+        Player player = null;
+
+        int S = Model.FIELD_CELL_SIZE;
+
+        for (int i = 0; i < chars.length; i++) {
+            for (int j = 0; j < chars[i].length; j++) {
+                switch (chars[i][j]) {
+                    case 'X': walls.add(new Wall(j * S + S / 2, i * S + S / 2)); break;
+                    case '*': boxes.add(new Box(j * S + S / 2, i * S + S / 2)); break;
+                    case '.': homes.add(new Home(j * S + S / 2, i * S + S / 2)); break;
+                    case '@': player = new Player(j * S + S / 2, i * S + S / 2);
+                }
+            }
+        }
         return new GameObjects(walls, boxes, homes, player);
     }
 }

@@ -8,12 +8,16 @@ import com.javarush.task.task34.task3410.view.View;
 public class Controller implements EventListener {
 
     private View view;
-    Model model;
+    private Model model;
+    private int level;
 
     public Controller() {
         model = new Model();
         view = new View(this);
         model.restart();
+        view.setWidth(model.getWidth());
+        view.setHeight(model.getHeight());
+        view.setLevel(model.getCurrentLevel());
         view.init();
         model.setEventListener(this);
         view.setEventListener(this);
@@ -44,11 +48,19 @@ public class Controller implements EventListener {
     @Override
     public void startNextLevel() {
         model.startNextLevel();
+        view.setWidth(model.getWidth());
+        view.setHeight(model.getHeight());
+        view.setLevel(model.getCurrentLevel());
         view.update();
     }
 
     @Override
     public void levelCompleted(int level) {
         view.completed(level);
+    }
+
+    @Override
+    public void setWin() {
+        model.setAllBoxesInHomes();
     }
 }

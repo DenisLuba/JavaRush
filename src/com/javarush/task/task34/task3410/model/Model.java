@@ -2,15 +2,41 @@ package com.javarush.task.task34.task3410.model;
 
 import com.javarush.task.task34.task3410.controller.EventListener;
 
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Model {
     public static final int FIELD_CELL_SIZE = 20;
     private EventListener eventListener;
     private GameObjects gameObjects;
-    private int currentLevel = 1;
-    private final LevelLoader levelLoader = new LevelLoader(Paths.get("/res.levels.txt"));
+    private int currentLevel;
+    private final LevelLoader levelLoader;
+    private int width, height;
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public Model() {
+        currentLevel = 1;
+        try {
+            levelLoader = new LevelLoader(Paths.get(Objects.requireNonNull(Model.class.getResource("../res/levels.txt")).toURI()));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void setEventListener(EventListener eventListener) {
         this.eventListener = eventListener;
@@ -22,6 +48,8 @@ public class Model {
 
     public void restartLevel(int level) {
         gameObjects = levelLoader.getLevel(level);
+        width = levelLoader.getWidth() * FIELD_CELL_SIZE + FIELD_CELL_SIZE;
+        height = levelLoader.getHeight() * FIELD_CELL_SIZE + 2 * FIELD_CELL_SIZE;
     }
 
     public void restart() {
@@ -29,7 +57,7 @@ public class Model {
     }
 
     public void startNextLevel() {
-        restartLevel(++currentLevel);
+        restartLevel(++currentLevel == 61 ? 1 : currentLevel);
     }
 
     public void move(Direction direction) {
@@ -41,9 +69,9 @@ public class Model {
         int y = getCoordinatesOfTheNextCell(player, direction)[1];
 
         if ((x - FIELD_CELL_SIZE / 2) < 0
-                || (x + FIELD_CELL_SIZE / 2) >= 500
+                || (x + FIELD_CELL_SIZE / 2) >= width
                 || (y - FIELD_CELL_SIZE / 2) < 0
-                || (y + FIELD_CELL_SIZE / 2) >= 500) return;
+                || (y + FIELD_CELL_SIZE / 2) >= height) return;
 
         player.move(x - player.getX(), y - player.getY());
 
@@ -102,15 +130,18 @@ public class Model {
     private GameObject getObjectByCoordinates(int x, int y) {
 
         if ((x - FIELD_CELL_SIZE / 2) < 0
-                || (x + FIELD_CELL_SIZE / 2) >= 500
+                || (x + FIELD_CELL_SIZE / 2) >= width
                 || (y - FIELD_CELL_SIZE / 2) < 0
-                || (y + FIELD_CELL_SIZE / 2) >= 500) return new Wall(x, y);
+                || (y + FIELD_CELL_SIZE / 2) >= height) return new Wall(x, y);
 
         List<GameObject> objects = gameObjects.getAll().stream()
                 .filter(object ->
                         object.getX() == x &&
                                 object.getY() == y)
                 .toList();
+
+        if (objects.size() == 2)
+            return objects.get(0) instanceof Box ? objects.get(0) : objects.get(1);
 
         return objects.isEmpty() ? null : objects.get(0);
     }
@@ -131,5 +162,15 @@ public class Model {
             return false;
         }
         return true;
+    }
+
+    public void setAllBoxesInHomes() {
+        List<Home> homes = gameObjects.getHomes().stream().toList();
+        List<Box> boxes = gameObjects.getBoxes().stream().toList();
+
+        for(int i = 0; i < homes.size(); i ++) {
+            boxes.get(i).setX(homes.get(i).getX());
+            boxes.get(i).setY(homes.get(i).getY());
+        }
     }
 }

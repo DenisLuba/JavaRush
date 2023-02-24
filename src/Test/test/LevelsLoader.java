@@ -1,5 +1,6 @@
 package Test.test;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -10,13 +11,15 @@ public class LevelsLoader {
 
     void getLevel(int level) {
 
-        String p = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath().toString();
+        String p = this.getClass().getPackageName();
 
-        System.out.println(p);
+        Path path1 = Path.of(p);
+
+        System.out.println(path1.getParent() + ".res");
         String s = Thread
                 .currentThread()
                 .getContextClassLoader()
-                .getResource(p + "res.levels.txt")
+                .getResource(p + "src/Test/res.levels.txt")
                 .getPath();
     }
 

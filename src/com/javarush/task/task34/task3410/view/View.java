@@ -8,8 +8,32 @@ import javax.swing.*;
 
 public class View extends JFrame {
 
-    private Controller controller;
+    private final Controller controller;
     private Field field;
+    private int width, height;
+    private int level;
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
 
     public View(Controller controller) {
         this.controller = controller;
@@ -20,9 +44,9 @@ public class View extends JFrame {
         add(field);
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(500, 500);
+        setSize(width, height);
         setLocationRelativeTo(null);
-        setTitle("Сокобан");
+        setTitle("Сокобан:     УРОВЕНЬ " + level);
         setVisible(true);
     }
 
@@ -31,7 +55,8 @@ public class View extends JFrame {
     }
 
     public void update() {
-        field.repaint();
+        init();
+//        field.repaint();
     }
 
     public GameObjects getGameObjects() {
